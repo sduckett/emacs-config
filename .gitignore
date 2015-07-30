@@ -9,3 +9,5 @@ places
 ido.last
 settings.el
 smex-items
+auto-save-list/
+backups
