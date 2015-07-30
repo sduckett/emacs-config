@@ -103,7 +103,8 @@ repositories.
 #+end_src
 
 Load [[https://github.com/jwiegley/use-package][use-package]] for loading packages everywhere else. If you set
-`use-package-verbose` to `t`, it will debug package loading.
+`use-package-verbose` to `t`, it will debug package loading. What do you think
+of this? Does it make things simpler?
 
 #+begin_src emacs-lisp :tangle yes
   (require 'use-package)
