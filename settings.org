@@ -404,9 +404,10 @@ Prettify all the symbols, if available (an Emacs 24.4 feature):
 *** Getting Emacs to play with Tmux in a terminal
 
 Oh, this is somewhat hellish, but there are a few things going on here:
+
 1. You must have the TERM environment setup correctly, to "screen-256color" or so when in Tmux
 2. You must have "xterm-keys on" in your Tmux config
-3. You must do some funky remapping of keys, according to the internet....I hope there's a better way.
+3. You "must" do some funky remapping of keys, according to the internet....I hope there's a better way.
 
 #+BEGIN_SRC emacs-lisp
   ;; This is from: https://wiki.archlinux.org/index.php/Emacs#Shift_.2B_Arrow_keys_not_working_in_emacs_within_tmux
@@ -581,24 +582,22 @@ I like this, having learned about it in Sublime Text and the IntelliJ family of 
 #+END_SRC
 
 ** Version Control
-
-Most of the time, I use git for version control, so it's nice to be able to look
-at diffs and make commtits without having to leave Emacs. [[http://magit.vc/][Magit]] fills this niche
-pretty well, but for some reason some of the basic commands aren't bound for
-me...
+   Most of the time, I use git for version control, so it's nice to be able to
+   look at diffs and make commtits without having to leave Emacs. [[http://magit.vc/][Magit]] fills
+   this niche pretty well, but for some reason some of the basic commands aren't
+   bound for me...
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-x g") 'magit-status)
 #+END_SRC
 
 ** Programming language-specific configuration
-
-   Configuration options for language-specific packages live here.
-
 *** General prog-mode hooks
+    (In Emacs, most programming language modes derive from prog-mode; any hooks
+    created for prog-mode should apply to all language modes.)
 
-    Some general settings that should apply to all programming modes, turning
-    on subword mode and idle-highlight-mode:
+    Subword mode lets me move between SegmentsOfACamelCasedThing and
+    idle-highlight-mode will hightlight the word under the point.
 
 #+BEGIN_SRC emacs-lisp
   (use-package idle-highlight-mode
@@ -614,17 +613,17 @@ me...
       (add-hook 'prog-mode-hook #'smd/idle-highlight-hook)))
 #+END_SRC
 
-    In programming modes, make sure things like FIXME and TODO are
-    highlighted so they stand out:
+    I think it's nice for things like FIXME and TODO to be highlighted so they
+    stand out.
 
 #+BEGIN_SRC emacs-lisp
-(defun smd/add-watchwords ()
-  "Highlight FIXME, TODO, and NOCOMMIT in code"
-  (font-lock-add-keywords
-   nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
-          1 '((:foreground "#d7a3ad") (:weight bold)) t))))
+  (defun smd/add-watchwords ()
+    "Highlight FIXME, TODO, and NOCOMMIT in code"
+    (font-lock-add-keywords
+     nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
+            1 '((:foreground "#d7a3ad") (:weight bold)) t))))
 
-(add-hook 'prog-mode-hook 'smd/add-watchwords)
+  (add-hook 'prog-mode-hook 'smd/add-watchwords)
 #+END_SRC
 
     Display parentheses nicely
@@ -636,33 +635,26 @@ me...
 #+END_SRC
 
 *** Paredit
-
    Paredit for all the lisps.
 
 #+BEGIN_SRC emacs-lisp
-(use-package paredit
-  :diminish "()"
-  :config
-  (progn
-    (define-key paredit-mode-map (kbd "M-)") 'paredit-forward-slurp-sexp)
-    (define-key paredit-mode-map (kbd "M-(") 'paredit-forward-barf-sexp)
-    (define-key paredit-mode-map (kbd ")") 'paredit-close-parenthesis)))
+  (use-package paredit
+    :diminish "()"
+    :config
+    (progn
+      (define-key paredit-mode-map (kbd "M-)") 'paredit-forward-slurp-sexp)
+      (define-key paredit-mode-map (kbd "M-(") 'paredit-forward-barf-sexp)
+      (define-key paredit-mode-map (kbd ")") 'paredit-close-parenthesis)))
 #+END_SRC
 *** Clojure
 
-- eldoc prints the argument list for a function as it is being typed.
-
-- subword allows you to move between word boundaries (e.g., CapitalizedSubWords)
+    `eldoc` prints the argument list for a function as it is being typed.
   in a nomenclature.
 
 - clj-refactor is good.
 #+BEGIN_SRC emacs-lisp
   (defun smd/clojure-things-hook ()
     "Set up clojure-y things"
-
-    (paredit-mode 1)
-    (subword-mode t)
-
     (company-mode 1)
 
     (clj-refactor-mode t)
@@ -796,7 +788,7 @@ This is a shot at getting that behavior in Emacs.
   (global-set-key [(control shift return)] 'smd/smart-open-line-above)
 #+END_SRC
 
-* Finalizers
+* Colophon
 Turn off debugging, now that initialization has ended
 
 #+BEGIN_SRC emacs-lisp
