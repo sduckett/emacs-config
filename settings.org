@@ -88,14 +88,14 @@ repositories.
 
 #+begin_src emacs-lisp :tangle yes
   (defvar smd/packages-to-install
-    '(use-package gist fuzzy popup company expand-region smex ido-vertical-mode
+    '(use-package gist popup company smex ido-vertical-mode
        ido-ubiquitous yasnippet projectile multiple-cursors ace-jump-mode
        idle-highlight-mode highlight-symbol highlight-numbers highlight-quoted
        org htmlize gnuplot-mode gnuplot wc-mode ssh-config-mode flycheck flycheck-tip
        clojure-mode clojure-mode-extra-font-locking cider paredit paren-face
-       ;; ruby-mode ruby-test-mode inf-ruby puppet-mode rbenv chruby
-       elisp-slime-nav paredit markdown-mode markdown-mode+ yaml-mode
-       magit git-gutter git-timemachine magit-gh-pulls with-editor git-annex))
+       ruby-mode ruby-test-mode inf-ruby rbenv elisp-slime-nav markdown-mode
+       markdown-mode+ yaml-mode magit git-gutter git-timemachine magit-gh-pulls
+       git-annex))
 
   (dolist (package smd/packages-to-install)
     (unless (package-installed-p package)
