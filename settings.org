@@ -391,14 +391,17 @@ Bury the =*scratch*= buffer, never kill it:
 Prettify all the symbols, if available (an Emacs 24.4 feature):
 
 #+BEGIN_SRC emacs-lisp
-(when (boundp 'global-prettify-symbols-mode)
-  (add-hook 'emacs-lisp-mode-hook
-            (lambda ()
-              (push '("lambda" . ?λ) prettify-symbols-alist)))
-  (add-hook 'clojure-mode-hook
-            (lambda ()
-              (push '("fn" . ?ƒ) prettify-symbols-alist)))
-  (global-prettify-symbols-mode +1))
+  (defvar smd/clojure-prettify-alist '())
+
+  (add-to-list 'smd/clojure-prettify-alist '(">=" . ?≥))
+  (add-to-list 'smd/clojure-prettify-alist '("<=" . ?≤))
+  (add-to-list 'smd/clojure-prettify-alist '("fn" . ?ƒ))
+  (add-to-list 'smd/clojure-prettify-alist '("lambda" . ?λ))
+
+  (eval-after-load 'clojure-mode
+    '(setq clojure--prettify-symbols-alist
+           (append smd/clojure-prettify-alist
+                   clojure--prettify-symbols-alist)))
 #+END_SRC
 
 *** Getting Emacs to play with Tmux in a terminal
