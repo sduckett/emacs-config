@@ -1,6 +1,6 @@
 #+TITLE:   Sean's Emacs Configuration
 #+AUTHOR:  Sean Duckett
-#+EMAIL:   sduckett@gmail.com
+#+EMAIL:   sean@hungryllama.net
 #+LANGUAGE: en
 #+PROPERTY: header-args :tangle yes
 #+HTML_HEAD: <link rel="stylesheet" href="http://dakrone.github.io/org.css" type="text/css" />
@@ -13,31 +13,20 @@
 #+TAGS: export(e) noexport(n)
 #+STARTUP: align fold nodlcheck lognotestate content
 
-* Foreward
-
-  This is a work in progress, where I attempt to write a literate configuration
-  file for Emacs and see how it affects my thinking of the system as a whole.
-  Depending on what version of this work you are reading, there might be steps
-  that don't work, broken code, and descriptions that are hard to follow. Please
-  accept my apologies and inform me of any glaring omissions. If anything is
-  gained in the process, I will consider it to have been a useful exercise.
-
-  This file was last exported: {{{time(%Y-%m-%d %H:%M)}}}
-
 * Introduction
 
-  The idea of writing a literate configuration file was mentioned during
-  a recent office-hours chat, but the benefits described were limited to
-  one: looking good on Github. I'm not sure I believe it, so I decided
-  to give it a try and see if I happen to notice any additional benefits.
+This is an experiment to see how keeping a literate configuration for Emacs
+feels; how does it affect my thinking of the system as a whole? There might be
+things that don't work, broken code, and descriptions that are hard to follow.
+This file was last exported: {{{time(%Y-%m-%d %H:%M)}}}
 
-** Getting Started
-  To get started, have a look at your `~/.emacs.d/init.el`. If you've done any
-  Emacs customizations there (font / color tweaks, etc), move them to a file
-  (perhaps `~/.emacs.d/custom-additions.el`) that you can load them after we do
-  some setup.
+* Getting Started
+To get started, have a look at your `~/.emacs.d/init.el`. If you've done any
+Emacs customizations there (font / color tweaks, etc), move them to a file
+(perhaps `~/.emacs.d/custom-additions.el`) that you can load them after we do
+some setup.
 
-  Next, put the following in `~/.emacs.d/init.el`:
+Next, put the following in `~/.emacs.d/init.el`:
 
 #+BEGIN_SRC
   ;; keep customized settings in their own file
@@ -52,14 +41,13 @@
                      user-emacs-directory))
 #+END_SRC
 
-  This gives use the ability to write a literate org-mode file using [[http://orgmode.org/worg/org-contrib/babel/intro.html][Babel]]; this
-  is simply an org file with code blocks interspersed. When we load this file
-  with `org-babel-load-file`, it is transformed into Emacs Lisp by stripping the
-  text away from the code blocks. This is the platform from which the rest of
-  the configuration is built.
+This gives use the ability to write a literate org-mode file using [[http://orgmode.org/worg/org-contrib/babel/intro.html][Babel]]; this
+is simply an org file with code blocks interspersed. When we load this file with
+`org-babel-load-file`, it is transformed into Emacs Lisp by stripping the text
+away from the code blocks. This is the platform from which the rest of the
+configuration is built.
 
-** Package Management Setup
-
+* Emacs Package Management
 The first thing to do is setup package managment with a few of our favorite
 collections.
 
@@ -70,7 +58,6 @@ collections.
     (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
   (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
   (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
 #+END_SRC
@@ -80,10 +67,10 @@ so it seems prudent to only use the versions hosted by the "stable"
 repositories.
 
 #+begin_src emacs-lisp :tangle yes
-    (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
-    (add-to-list 'package-pinned-packages '(clj-refactor . "melpa-stable") t)
+  (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
+  (add-to-list 'package-pinned-packages '(clj-refactor . "melpa-stable") t)
 
-    (package-initialize)
+  (package-initialize)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -95,7 +82,8 @@ repositories.
        clojure-mode clojure-mode-extra-font-locking cider paredit paren-face
        ruby-mode ruby-test-mode inf-ruby rbenv elisp-slime-nav markdown-mode
        markdown-mode+ yaml-mode magit git-gutter git-timemachine magit-gh-pulls
-       git-annex))
+       git-annex helm helm-descbinds helm-ag helm-projectile helm-swoop  helm-gtags
+       helm-ls-git helm-flycheck helm-flyspell helm-flx))
 
   (dolist (package smd/packages-to-install)
     (unless (package-installed-p package)
@@ -112,102 +100,221 @@ of this? Does it make things simpler?
 #+end_src
 
 * Configuration
-** Using org-mode to keep track of things
-*** Basic configuration
-    I like a `docs/` directory in $HOME, so this is where I keep my
-    org files. I'm trying out keeping notes in a single file.
+* Using org-mode to keep track of things
+** Basic configuration
+I like a `docs/` directory in $HOME, so this is where I keep my org files. I'm
+trying out keeping notes in a single file.
 
-    #+BEGIN_SRC emacs-lisp
-      (setq org-directory "~/docs/org")
-      (setq org-default-notes-file (concat org-directory "/notes.org"))
-    #+END_SRC
-
-    I would like to be able to keep an agenda and get to it quickly.
-
-    #+BEGIN_SRC emacs-lisp
-      (define-key global-map "\C-ca" 'org-agenda)
-    #+END_SRC
-
-    I like a few different agenda files
-
-    #+BEGIN_SRC emacs-lisp
-      (setq org-agenda-files
-            '("~/docs/org/personal/meetups.org" "~/docs/org/tasks.org" "~/docs/org/work/lfo.org"))
-    #+END_SRC
-
-    Keep timestamps in a drawer
-
-    #+BEGIN_SRC emacs-lisp
-      (setq org-clock-into-drawer t)
-    #+END_SRC
-
-    Configure how Org does time clocking on task's state changes, from
-    http://sachachua.com/blog/2007/12/clocking-time-with-emacs-org/
-
-    #+BEGIN_SRC emacs-lisp
-      (eval-after-load 'org
-        '(progn
-           (defun smd/org-clock-in-if-starting ()
-             "Clock in when the task is marked STARTED."
-             (when (and (string= org-state "STARTED")
-                        (not (string= org-last-state org-state)))
-               (org-clock-in)))
-           (add-hook 'org-after-todo-state-change-hook
-                     'smd/org-clock-in-if-starting)
-           (defadvice org-clock-in (after smd activate)
-             "Set this task's status to 'STARTED'."
-             (org-todo "STARTED"))
-           (defun smd/org-clock-out-if-waiting ()
-             "Clock out when the task is marked WAITING."
-             (when (and (string= org-state "WAITING")
-                        (equal (marker-buffer org-clock-marker) (current-buffer))
-                        (< (point) org-clock-marker)
-                        (> (save-excursion (outline-next-heading) (point))
-                           org-clock-marker)
-                        (not (string= org-last-state org-state)))
-               (org-clock-out)))
-           (add-hook 'org-after-todo-state-change-hook
-                     'smd/org-clock-out-if-waiting)))
-    #+END_SRC
-
-*** SOMEDAY GTD ideas
-Use a GTD-style set of states for tasks
 #+BEGIN_SRC emacs-lisp
-      (setq org-todo-keywords
-        '((sequence "TODO" "STARTED" "WAITING" "SOMEDAY" "DONE")))
+  (setq org-directory "~/docs/org")
+  (setq org-default-notes-file (concat org-directory "/notes.org"))
 #+END_SRC
-*** INPROGRESS Capturing notes quickly
-    `C-c r` is how I'll get to "remembering" a thing.
 
-    #+BEGIN_SRC emacs-lisp
-      (define-key global-map "\C-cr" 'org-capture)
-    #+END_SRC
+I would like to be able to keep an agenda and get to it quickly.
 
-    Org is good at helping me keep track of things that I don't want to forget.
-    For example, I make journal entries that are personal, lists of tasks for
-    various projects, and keep a log of my bike rides.
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-files '("~/docs/org/tasks.org"))
+  (define-key global-map "\C-ca" 'org-agenda)
+#+END_SRC
 
-    TODO: I would like my ride log to go under the training log heading.
+We'll mark tasks with a GTD-style set of states.
 
-    #+BEGIN_SRC emacs-lisp
-      (setq org-capture-templates
-            '(
-              ("t" "TODO item" entry
-               (file+headline "~/docs/org/tasks.org" "new tasks")
-               "* TODO %?")
-              ("j" "Journal entry" entry
-               (file+datetree "~/docs/org/personal/journal.org")
-               "* %?")
-              ("r" "A Bicycle Ride" entry
-               (file+datetree  "~/docs/org/personal/bikes.org")
-               "* %U\n  %?")
-              ("m" "Meetup note" entry
-               (file+headline  "~/docs/org/personal/meetups.org" "Tasks")
-               "* %U\n  %?")
-              ))
-    #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (setq org-todo-keywords
+    '((sequence "TODO" "STARTED" "WAITING" "SOMEDAY" "DONE")))
+#+END_SRC
 
-*** INPROGRESS Literate Progragramming
+Keep timestamps in a drawer.
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-clock-into-drawer t)
+#+END_SRC
+
+[[http://sachachua.com/blog/2007/12/clocking-time-with-emacs-org/][Configure how Org does time clocking on task's state changes]]
+
+#+BEGIN_SRC emacs-lisp
+  (eval-after-load 'org
+    '(progn
+       (defun smd/org-clock-in-if-starting ()
+         "Clock in when the task is marked STARTED."
+         (when (and (string= org-state "STARTED")
+                    (not (string= org-last-state org-state)))
+           (org-clock-in)))
+       (add-hook 'org-after-todo-state-change-hook
+                 'smd/org-clock-in-if-starting)
+       (defadvice org-clock-in (after smd activate)
+         "Set this task's status to 'STARTED'."
+         (org-todo "STARTED"))
+       (defun smd/org-clock-out-if-waiting ()
+         "Clock out when the task is marked WAITING."
+         (when (and (string= org-state "WAITING")
+                    (equal (marker-buffer org-clock-marker) (current-buffer))
+                    (< (point) org-clock-marker)
+                    (> (save-excursion (outline-next-heading) (point))
+                       org-clock-marker)
+                    (not (string= org-last-state org-state)))
+           (org-clock-out)))
+       (add-hook 'org-after-todo-state-change-hook
+                 'smd/org-clock-out-if-waiting)))
+#+END_SRC
+
+Helm is a useful thing for doing stuff:
+
+
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-flx
+               :init (helm-flx-mode +1))
+
+  (use-package helm-config
+               :demand t
+               :bind
+               (("C-M-z" . helm-resume)
+                ("C-x C-f" . helm-find-files)
+                ("C-x C-r" . helm-mini)
+                ("C-x M-o" . helm-occur)
+                ("M-y" . helm-show-kill-ring)
+                ("C-h a" . helm-apropos)
+                ("C-h m" . helm-man-woman)
+                ("C-h SPC" . helm-all-mark-rings)
+                ("M-g >" . helm-ag-this-file)
+                ("M-g ," . helm-ag-pop-stack)
+                ("M-g ." . helm-do-grep)
+                ("C-x C-i" . helm-semantic-or-imenu)
+                ("M-x" . helm-M-x)
+                ("C-x C-b" . helm-buffers-list)
+                ("C-x C-r" . helm-mini)
+                ("C-x b" . helm-mini)
+                ("C-h t" . helm-world-time))
+               :config
+               (use-package
+                helm-files
+                :config (setq helm-ff-file-compressed-list
+                              '("gz" "bz2" "zip" "tgz")))
+               (use-package helm-commands)
+               (use-package helm-buffers)
+               (use-package helm-mode
+                            :diminish helm-mode
+                            :init (helm-mode 1))
+               (use-package helm-ls-git
+                            :bind ("C-x C-d" . helm-browse-project))
+               (use-package helm-grep
+                            :config
+                            (progn
+                              (define-key helm-grep-mode-map (kbd "<return>")  'helm-grep-mode-jump-other-window)
+                              (define-key helm-grep-mode-map (kbd "n")  'helm-grep-mode-jump-other-window-forward)
+                              (define-key helm-grep-mode-map (kbd "p")  'helm-grep-mode-jump-other-window-backward)))
+               (use-package helm-man)
+               (use-package helm-misc)
+               (use-package helm-aliases)
+               (use-package helm-elisp)
+               (use-package helm-imenu)
+               (use-package helm-semantic)
+               (use-package helm-ring)
+               (use-package helm-bookmark
+                            :bind ("C-x M-b" . helm-bookmarks))
+               (use-package helm-projectile
+                            :bind (("C-x f" . helm-projectile)
+                                   ("C-c p f" . helm-projectile-find-file)
+                                   ("C-c p s" . helm-projectile-switch-project)))
+
+               (global-set-key (kbd "C-c h") 'helm-command-prefix)
+               (global-unset-key (kbd "C-x c"))
+
+               (setq helm-idle-delay 0.01
+                     helm-exit-idle-delay 0.1
+                     helm-input-idle-delay 0.01
+                     ;; truncate long lines in helm completion
+                     helm-truncate-lines t
+                     ;; may be overridden if 'ggrep' is in path (see below)
+                     helm-grep-default-command
+                     "grep -a -d skip %e -n%cH -e %p %f"
+                     helm-grep-default-recurse-command
+                     "grep -a -d recurse %e -n%cH -e %p %f"
+                     ;; do not display invisible candidates
+                     helm-quick-update t
+                     ;; be idle for this many seconds, before updating in delayed sources.
+                     helm-idle-delay 0.01
+                     ;; use 40% of the window for things
+                     ;; helm-autoresize-max-height 40
+                     ;; helm-autoresize-min-height 40
+                     ;; wider buffer name in helm-buffers-list
+                     helm-buffer-max-length 25 ;; default is 20
+                     ;; be idle for this many seconds, before updating candidate buffer
+                     helm-input-idle-delay 0.01
+                     ;; open helm buffer in another window
+                     helm-split-window-default-side 'other
+                     ;; open helm buffer inside current window, don't occupy whole other window
+                     helm-split-window-in-side-p t
+                     ;; limit the number of displayed canidates
+                     helm-candidate-number-limit 200
+                     ;; don't use recentf stuff in helm-ff, I use C-x C-r for this
+                     helm-ff-file-name-history-use-recentf nil
+                     ;; move to end or beginning of source when reaching top or bottom
+                     ;; of source
+                     helm-move-to-line-cycle-in-source t
+                     ;; don't display the header line
+                     helm-display-header-line nil
+                     ;; fuzzy matching
+                     helm-recentf-fuzzy-match t
+                     helm-locate-fuzzy-match nil ;; locate fuzzy is worthless
+                     helm-M-x-fuzzy-match t
+                     helm-buffers-fuzzy-matching t
+                     helm-semantic-fuzzy-match t
+                     helm-apropos-fuzzy-match t
+                     helm-imenu-fuzzy-match t
+                     helm-lisp-fuzzy-completion t
+                     helm-completion-in-region-fuzzy-match t
+                     ;; Here are the things helm-mini shows, I add `helm-source-bookmarks'
+                     ;; here to the regular default list
+                     helm-mini-default-sources '(helm-source-buffers-list
+                                                 helm-source-recentf
+                                                 helm-source-bookmarks
+                                                 helm-source-buffer-not-found))
+
+               (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to do persistent action
+               (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
+               (define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+
+               (define-key helm-map (kbd "C-p")   'helm-previous-line)
+               (define-key helm-map (kbd "C-n")   'helm-next-line)
+               (define-key helm-map (kbd "C-M-n") 'helm-next-source)
+               (define-key helm-map (kbd "C-M-p") 'helm-previous-source)
+               (define-key helm-map (kbd "M-N")   'helm-next-source)
+               (define-key helm-map (kbd "M-P")   'helm-previous-source)
+               ;; The normal binding is C-c h M-g s which is insane
+               (global-set-key (kbd "C-c h g")    'helm-do-grep)
+               (global-set-key (kbd "C-c h a")    'helm-do-ag)
+
+               (when (executable-find "curl")
+                 (setq helm-google-suggest-use-curl-p t))
+
+               ;; helm-mini instead of recentf
+               (define-key 'help-command (kbd "C-f") 'helm-apropos)
+               (define-key 'help-command (kbd "r") 'helm-info-emacs))
+#+END_SRC
+
+** Capturing notes quickly
+=C-c r= is how I'll capture a thought.
+
+#+BEGIN_SRC emacs-lisp
+  (define-key global-map "\C-cr" 'org-capture)
+
+  (setq org-capture-templates
+        '(("t" "TODO item" entry
+           (file+headline "~/docs/org/tasks.org" "Tasks")
+           "* TODO %?")
+          ("j" "Journal entry" entry
+           (file+datetree "~/docs/org/personal/journal.org")
+           "* %?")
+          ("r" "A Bicycle Ride" entry
+           (file+datetree  "~/docs/org/personal/bikes.org")
+           "* %U\n  %?")
+          ("m" "Meetup note" entry
+           (file+headline  "~/docs/org/personal/meetups.org" "Tasks")
+           "* %U\n  %?")))
+#+END_SRC
+
+** INPROGRESS Literate Progragramming
 I like writing in Org, so I'm testing the waters of writing my code in a
 literate style. It begins as a narrative where we use the structural aspects to
 represent namespaces. If we can draw a good outline of our code, then maybe we
@@ -232,13 +339,12 @@ I would like to be able to insert code snippets, so let's try yasnippet
 (yas-global-mode 1)
 #+END_SRC
 
-** Basics and settings used everywhere
+* Basics and settings used everywhere
+Mostly settings that don't fit in elsewhere, so they end up here. However, this
+does include settings that aren't part of packages and need to configure Emacs'
+built-in packages.
 
-   Mostly settings that don't fit in elsewhere, so they end up here. However,
-   this does include settings that aren't part of packages and need to configure
-   Emacs' built-in packages.
-
-*** General settings
+** General settings
 Turn on debugging (it will be turned off at the end). In case something happens
 during loading that breaks something, it's nice to have debug information.
 
@@ -309,14 +415,14 @@ Turn off all kinds of modes, I don't need the menu bar, or the tool bar:
   (blink-cursor-mode -1))
 #+END_SRC
 
-Why would you not want to know lines/columns in your mode-line?
+Show line & column position in your mode-line
 
 #+BEGIN_SRC emacs-lisp
 (line-number-mode 1)
 (column-number-mode 1)
 #+END_SRC
 
-Ignore case when using completion for file names:
+Ignore case when using completion for file names
 
 #+BEGIN_SRC emacs-lisp
 (setq read-file-name-completion-ignore-case t)
@@ -388,20 +494,30 @@ Bury the =*scratch*= buffer, never kill it:
       ad-do-it)))
 #+END_SRC
 
+Let's bind some things to move around buffers easily
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-c y") 'bury-buffer)
+  ;;(global-set-key (kbd "C-c r") 'revert-buffer)
+#+END_SRC
+
 Prettify all the symbols, if available (an Emacs 24.4 feature):
 
 #+BEGIN_SRC emacs-lisp
-(when (boundp 'global-prettify-symbols-mode)
-  (add-hook 'emacs-lisp-mode-hook
-            (lambda ()
-              (push '("lambda" . ?λ) prettify-symbols-alist)))
-  (add-hook 'clojure-mode-hook
-            (lambda ()
-              (push '("fn" . ?ƒ) prettify-symbols-alist)))
-  (global-prettify-symbols-mode +1))
+  (defvar smd/clojure-prettify-alist '())
+
+  (add-to-list 'smd/clojure-prettify-alist '(">=" . ?≥))
+  (add-to-list 'smd/clojure-prettify-alist '("<=" . ?≤))
+  (add-to-list 'smd/clojure-prettify-alist '("fn" . ?ƒ))
+  (add-to-list 'smd/clojure-prettify-alist '("lambda" . ?λ))
+
+  (eval-after-load 'clojure-mode
+    '(setq clojure--prettify-symbols-alist
+           (append smd/clojure-prettify-alist
+                   clojure--prettify-symbols-alist)))
 #+END_SRC
 
-*** Getting Emacs to play with Tmux in a terminal
+** Getting Emacs to play with Tmux in a terminal
 
 Oh, this is somewhat hellish, but there are a few things going on here:
 
@@ -498,7 +614,7 @@ Oh, this is somewhat hellish, but there are a few things going on here:
 
             (setq x (+ x 1))))))
 #+END_SRC
-*** SMEX
+** SMEX
 
 https://github.com/nonsequitur/smex
 
@@ -512,7 +628,7 @@ https://github.com/nonsequitur/smex
   (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 #+END_SRC
 
-*** Setup Ido Mode for fancy customizations
+** Setup Ido Mode for fancy customizations
 
 Use ido-mode everywhere! See https://www.masteringemacs.org/article/introduction-to-ido-mode
 
@@ -528,10 +644,9 @@ Use ido-mode everywhere! See https://www.masteringemacs.org/article/introduction
   (setq ido-vertical-define-keys 'C-n-and-C-p-only)
   (setq ido-enable-flex-matching t)
   (setq ido-create-new-buffer 'always)
-
 #+END_SRC
 
-*** saveplace
+** Saveplace
 Navigates back to where you were editing a file next time you open it
 
 #+BEGIN_SRC emacs-lisp
@@ -589,15 +704,14 @@ I like this, having learned about it in Sublime Text and the IntelliJ family of 
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-x g") 'magit-status)
+  (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 #+END_SRC
 
-** Programming language-specific configuration
-*** General prog-mode hooks
-    (In Emacs, most programming language modes derive from prog-mode; any hooks
-    created for prog-mode should apply to all language modes.)
-
-    Subword mode lets me move between SegmentsOfACamelCasedThing and
-    idle-highlight-mode will hightlight the word under the point.
+** Programming Modes
+(In Emacs, most programming language modes derive from prog-mode; any hooks
+created for prog-mode should apply to all language modes.) Subword mode lets me
+move between SegmentsOfACamelCasedThing and idle-highlight-mode will hightlight
+the word under the point.
 
 #+BEGIN_SRC emacs-lisp
   (use-package idle-highlight-mode
@@ -613,20 +727,19 @@ I like this, having learned about it in Sublime Text and the IntelliJ family of 
       (add-hook 'prog-mode-hook #'smd/idle-highlight-hook)))
 #+END_SRC
 
-    I think it's nice for things like FIXME and TODO to be highlighted so they
-    stand out.
+FIXME and TODO can be highlighted so they stand out
 
 #+BEGIN_SRC emacs-lisp
   (defun smd/add-watchwords ()
     "Highlight FIXME, TODO, and NOCOMMIT in code"
     (font-lock-add-keywords
      nil '(("\\<\\(FIXME\\|TODO\\|NOCOMMIT\\)\\>"
-            1 '((:foreground "#d7a3ad") (:weight bold)) t))))
+            1 '((:foreground "#d7d7d7") (:weight bold)) t))))
 
   (add-hook 'prog-mode-hook 'smd/add-watchwords)
 #+END_SRC
 
-    Display parentheses nicely
+Display parentheses nicely
 
 #+BEGIN_SRC emacs-lisp
   (require 'paren)
@@ -634,8 +747,8 @@ I like this, having learned about it in Sublime Text and the IntelliJ family of 
   (add-hook 'prog-mode-hook 'show-paren-mode)
 #+END_SRC
 
-*** Paredit
-   Paredit for all the lisps.
+** Paredit
+Paredit for all the lisps
 
 #+BEGIN_SRC emacs-lisp
   (use-package paredit
@@ -646,31 +759,10 @@ I like this, having learned about it in Sublime Text and the IntelliJ family of 
       (define-key paredit-mode-map (kbd "M-(") 'paredit-forward-barf-sexp)
       (define-key paredit-mode-map (kbd ")") 'paredit-close-parenthesis)))
 #+END_SRC
-*** Clojure
 
-    `eldoc` prints the argument list for a function as it is being typed.
-  in a nomenclature.
-
-- clj-refactor is good.
-#+BEGIN_SRC emacs-lisp
-   (defun smd/clojure-things-hook ()
-     "Set up clojure-y things"
-     (company-mode 1)
-     (paredit-mode 1)
-     (clj-refactor-mode t)
-     (cljr-add-keybindings-with-prefix "C-c C-m")
-
-     ;; NOTE: These are possibly wonky settings...
-     (define-key paredit-mode-map (kbd "M-[") nil)
-     (define-key paredit-mode-map (kbd "<C-right>") 'paredit-forward-slurp-sexp))
-
-   (use-package clojure-mode
-     :config
-     (progn (add-hook 'clojure-mode-hook 'smd/clojure-things-hook)))
-#+END_SRC
-
-    Let's define a couple of helper functions for setting up the cider and
-    autocomplete packages:
+** Clojure
+Let's define a couple of helper functions for setting up the cider and
+autocomplete packages:
 
 #+BEGIN_SRC emacs-lisp
   (defun smd/setup-cider ()
@@ -684,42 +776,48 @@ I like this, having learned about it in Sublime Text and the IntelliJ family of 
             cider-repl-history-file "src/cider-repl.log")
       (paredit-mode 1)
       (eldoc-mode 1)
+
       (add-hook 'cider-repl-mode-hook #'company-mode)
       (add-hook 'cider-mode-hook #'company-mode)))
-#+END_SRC
 
-    And then finally use them
-
-#+BEGIN_SRC emacs-lisp
   (use-package cider
     :init
     (progn
       (add-hook 'cider-mode-hook 'smd/setup-cider)
       (add-hook 'cider-repl-mode-hook 'smd/setup-cider)
-      (add-hook 'cider-mode-hook 'smd/clojure-things-hook)
-      (add-hook 'cider-repl-mode-hook 'smd/clojure-things-hook)
-      ;; (setq company-idle-delay nil) ; never start completions automatically
+      ;; (add-hook 'cider-mode-hook 'smd/clojure-things-hook)
+      ;; (add-hook 'cider-repl-mode-hook 'smd/clojure-things-hook)
       (global-set-key (kbd "M-TAB") #'company-complete)))
+
+  (defun smd/clojure-things-hook ()
+    "Set up clojure-y things"
+    (company-mode 1)
+    (paredit-mode 1)
+    (clj-refactor-mode t)
+    (cljr-add-keybindings-with-prefix "C-c C-m")
+
+    ;; NOTE: These are possibly wonky settings...
+    (define-key paredit-mode-map (kbd "M-[") nil)
+    (define-key paredit-mode-map (kbd "<C-right>") 'paredit-forward-slurp-sexp))
+
+  (use-package clojure-mode
+    :config
+    (progn (add-hook 'clojure-mode-hook 'smd/clojure-things-hook)))
 #+END_SRC
 
-Write backup files to own directory
+Write backup files to own directory and make backups of files even when they're
+in version control
 
 #+BEGIN_SRC emacs-lisp
-(setq backup-directory-alist
-      `(("." . ,(expand-file-name
-                 (concat user-emacs-directory "backups")))))
-#+END_SRC
-
-Make backups of files, even when they're in version control
-#+BEGIN_SRC emacs-lisp
-(setq vc-make-backup-files t)
+  (setq backup-directory-alist
+        `(("." . ,(expand-file-name
+                   (concat user-emacs-directory "backups")))))
+  (setq vc-make-backup-files t)
 #+END_SRC
 
 ** SQL things
-
-Sometimes it is nice to be able to connect to a relational database for some
-development of an idea. Since I tend to use PostgreSQL, sql-postgres can be
-configured:
+Sometimes you need to use a relational database for some. Since I tend to use
+PostgreSQL, we need to setup sql-postgres
 
 #+begin_src emacs-lisp :tangle yes
   (setq sql-postgres-login-params
@@ -729,7 +827,6 @@ configured:
           (port :default 5432)))
 #+end_src
 ** Projectile
-
 Always use Projectile because turning it on for specific things is annoying.
 
 #+BEGIN_SRC emacs-lisp
@@ -738,7 +835,7 @@ Always use Projectile because turning it on for specific things is annoying.
 
 ** Snippets
 
-Yasnippet can be setup with
+Yasnippet can be setup with a pretty big collection of templates
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "M-=") 'yas-insert-snippet)
@@ -770,26 +867,8 @@ I can make a geojson snippet with this:
   }
 #+end_src
 
-** Misc editing functions
-
-Some IDEs (like RubyMine and IntelliJ) let you put a newline above the point.
-This is a shot at getting that behavior in Emacs.
-
-#+BEGIN_SRC emacs-lisp
-  (defun smd/smart-open-line-above ()
-    "Insert an empty line above the current line.
-    Position the cursor at it's beginning, according to the current mode."
-    (interactive)
-    (move-beginning-of-line nil)
-    (newline-and-indent)
-    (forward-line -1)
-    (indent-according-to-mode))
-
-  (global-set-key [(control shift return)] 'smd/smart-open-line-above)
-#+END_SRC
-
-* Colophon
-Turn off debugging, now that initialization has ended
+* Finally
+Turn off debugging now that initialization is done.
 
 #+BEGIN_SRC emacs-lisp
 (setq debug-on-error nil)
