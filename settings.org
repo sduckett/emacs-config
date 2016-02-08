@@ -303,12 +303,12 @@ Helm is a useful thing for doing stuff:
         '(("t" "TODO item" entry
            (file+headline "~/docs/org/tasks.org" "Tasks")
            "* TODO %?")
+          ("s" "Standup" entry
+           (file+datetree "~/docs/dw.org")
+           "* %?")
           ("j" "Journal entry" entry
            (file+datetree "~/docs/org/personal/journal.org")
            "* %?")
-          ("r" "A Bicycle Ride" entry
-           (file+datetree  "~/docs/org/personal/bikes.org")
-           "* %U\n  %?")
           ("m" "Meetup note" entry
            (file+headline  "~/docs/org/personal/meetups.org" "Tasks")
            "* %U\n  %?")))
