@@ -872,6 +872,18 @@ PostgreSQL, we need to setup sql-postgres
           (server :default "localhost")
           (port :default 5432)))
 #+end_src
+
+"PostgreSQL databases with underscores in their names trip up the prompt
+specified in sql.el. I work around this with the following. Warning, this sets
+the prompt globally, which is fine by me since I only ever use Postgres."
+-- [[https://www.emacswiki.org/emacs/SqlMode][EmacsWiki - SqlMode]]
+
+#+begin_src emacs-lisp :tangle yes
+(add-hook 'sql-interactive-mode-hook
+            (lambda ()
+              (setq sql-prompt-regexp "^[_[:alpha:]]*[=][#>] ")
+              (setq sql-prompt-cont-regexp "^[_[:alpha:]]*[-][#>] ")))
+#+end_src
 ** Projectile
 Always use Projectile because turning it on for specific things is annoying.
 
