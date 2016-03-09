@@ -44,8 +44,8 @@ Next, put the following in `~/.emacs.d/init.el`:
 This gives use the ability to write a literate org-mode file using [[http://orgmode.org/worg/org-contrib/babel/intro.html][Babel]]; this
 is simply an org file with code blocks interspersed. When we load this file with
 `org-babel-load-file`, it is transformed into Emacs Lisp by stripping the text
-away from the code blocks. This is the platform from which the rest of the
-configuration is built.
+away from the code blocks. This is base which the rest of my configuration is
+built upon.
 
 * Emacs Package Management
 The first thing to do is setup package managment with a few of our favorite
@@ -69,6 +69,7 @@ repositories.
 #+begin_src emacs-lisp :tangle yes
   (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(clj-refactor . "melpa-stable") t)
+  (add-to-list 'package-pinned-packages '(magit . "melpa-stable") t)
 
   (package-initialize)
 #+end_src
@@ -697,15 +698,33 @@ I like this, having learned about it in Sublime Text and the IntelliJ family of 
 #+END_SRC
 
 ** Version Control
-   Most of the time, I use git for version control, so it's nice to be able to
-   look at diffs and make commtits without having to leave Emacs. [[http://magit.vc/][Magit]] fills
-   this niche pretty well, but for some reason some of the basic commands aren't
-   bound for me...
+I use git for most of my version control needs, and it's nice to use [[http://magit.vc/][Magit]] and
+not leave Emacs pretty well. Most of the interactions comes from two functions.
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-x g") 'magit-status)
   (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 #+END_SRC
+
+When branching from a branch from a branch, tracking gets a little weird; don't
+set it by default, but let me tell you what I want it to be. According to
+[[https://github.com/tie-rack/emacs.d/blob/master/tierack.org#magit][tie-rack's settings]] around 2.1, you could do something like this
+
+#+begin_src emacs-lisp
+  ;; (setq magit-branch-arguments (remove "--track" magit-branch-arguments))
+#+end_src
+
+It looks like as of version 2.5.0 [[http://magit.vc/manual/magit/Branching.html#Branching][branching behavior]] has changed (again), and
+you can use =magit-branch-spinoff= to do a similar thing:
+
+"This command creates and checks out a new branch starting at and tracking the
+current branch. That branch in turn is reset to the last commit it shares with
+its upstream. If the current branch has no upstream or no unpushed commits, then
+the new branch is created anyway and the previously current branch is not
+touched.
+
+This is useful to create a feature branch after work has already began on the
+old branch (likely but not necessarily "master")."
 
 ** Programming Modes
 (In Emacs, most programming language modes derive from prog-mode; any hooks
@@ -825,6 +844,7 @@ autocomplete packages:
     ;; NOTE: These are possibly wonky settings...
     (define-key paredit-mode-map (kbd "M-[") nil)
     (define-key paredit-mode-map (kbd "<C-right>") 'paredit-forward-slurp-sexp))
+
 
   (use-package clojure-mode
     :config
