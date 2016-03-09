@@ -838,8 +838,10 @@ autocomplete packages:
     "Set up clojure-y things"
     (company-mode 1)
     (paredit-mode 1)
-    (clj-refactor-mode t)
-    (cljr-add-keybindings-with-prefix "C-c C-m")
+
+    (comment
+     (clj-refactor-mode t)
+     (cljr-add-keybindings-with-prefix "C-c C-m"))
 
     ;; NOTE: These are possibly wonky settings...
     (define-key paredit-mode-map (kbd "M-[") nil)
