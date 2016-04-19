@@ -1,0 +1,9 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: sql
+# key: sql
+# binding: direct-keybinding
+# --
+
+#+BEGIN_SRC sql
+  -- An SQL snippet to do a thing
+#+END_SRC
