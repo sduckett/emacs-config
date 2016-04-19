@@ -640,6 +640,26 @@ Oh, this is somewhat hellish, but there are a few things going on here:
 
             (setq x (+ x 1))))))
 #+END_SRC
+** A Terminal in Emacs
+Don't ask me about my shell of choice
+#+begin_src emacs-lisp :tangle yes
+  (setq explicit-shell-file-name "/bin/zsh")
+#+end_src
+
+How do you switch modes again, Chris?
+#+begin_src emacs-lisp :tangle yes
+  (add-hook 'term-mode-hook '(lambda ()
+    (setq mode-line-format
+      (list
+       " "
+       '(:eval (propertize "%b "))
+       "("
+       '(:eval (propertize "%m "))
+       '(:eval (if (term-in-char-mode)
+                   "char) [C-x C-j to switch]"
+                   "line) [C-c C-k to switch]"))))))
+#+end_src
+
 ** SMEX
 
 https://github.com/nonsequitur/smex
