@@ -28,7 +28,7 @@ some setup.
 
 Next, put the following in `~/.emacs.d/init.el`:
 
-#+BEGIN_SRC
+#+BEGIN_SRC elisp
   ;; keep customized settings in their own file
   (setq custom-file "~/.emacs.d/custom.el")
   (when (file-exists-p custom-file)
@@ -36,6 +36,7 @@ Next, put the following in `~/.emacs.d/init.el`:
 
   ;; translate the literate configuration and load it.
   (require 'org)
+
   (org-babel-load-file
    (expand-file-name "settings.org"
                      user-emacs-directory))
@@ -926,6 +927,7 @@ I can make a geojson snippet with this:
       }
   }
 #+end_src
+
 
 * Finally
 Turn off debugging now that initialization is done.
