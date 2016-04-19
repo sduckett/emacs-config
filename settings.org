@@ -71,25 +71,28 @@ repositories.
   (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(clj-refactor . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(magit . "melpa-stable") t)
+  (add-to-list 'package-pinned-packages '(ob-http . "melpa-stable") t)
 
   (package-initialize)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-  (defvar smd/packages-to-install
-    '(use-package gist popup company smex ido-vertical-mode
-       ido-ubiquitous yasnippet projectile multiple-cursors ace-jump-mode
-       idle-highlight-mode highlight-symbol highlight-numbers highlight-quoted
-       org htmlize gnuplot-mode gnuplot wc-mode ssh-config-mode flycheck flycheck-tip
-       clojure-mode clojure-mode-extra-font-locking cider paredit paren-face
-       ruby-mode ruby-test-mode inf-ruby rbenv elisp-slime-nav markdown-mode
-       markdown-mode+ yaml-mode magit git-gutter git-timemachine magit-gh-pulls
-       git-annex helm helm-descbinds helm-ag helm-projectile helm-swoop  helm-gtags
-       helm-ls-git helm-flycheck helm-flyspell helm-flx))
+    (defvar smd/packages-to-install
+      '(use-package gist popup company smex ido-vertical-mode
+         ido-ubiquitous yasnippet projectile multiple-cursors ace-jump-mode
+         idle-highlight-mode highlight-symbol highlight-numbers highlight-quoted
+         org htmlize gnuplot-mode gnuplot wc-mode
+         ;; ssh-config-mode
+         flycheck flycheck-tip
+         clojure-mode clojure-mode-extra-font-locking cider paredit paren-face
+         ruby-mode ruby-test-mode inf-ruby rbenv elisp-slime-nav markdown-mode
+         markdown-mode+ yaml-mode magit git-gutter git-timemachine magit-gh-pulls
+         git-annex helm helm-descbinds helm-ag helm-projectile helm-swoop  helm-gtags
+         helm-ls-git helm-flycheck helm-flyspell helm-flx ob-http))
 
-  (dolist (package smd/packages-to-install)
-    (unless (package-installed-p package)
-      (package-install package)))
+    (dolist (package smd/packages-to-install)
+      (unless (package-installed-p package)
+        (package-install package)))
 #+end_src
 
 Load [[https://github.com/jwiegley/use-package][use-package]] for loading packages everywhere else. If you set
@@ -103,6 +106,27 @@ of this? Does it make things simpler?
 
 * Configuration
 * Using org-mode to keep track of things
+** Babel configuration
+#+begin_src emacs-lisp :tangle yes
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (clojure . t)
+   (sh . t)
+   (http . t)))
+
+;; Specify the Clojure back-end we want to use in Org-mode.
+;; I personally use Cider, but one could specify Slime
+(setq org-babel-clojure-backend 'cider)
+
+;; Let's have pretty source code blocks
+;; (setq org-edit-src-content-indentation 0
+;;       org-src-tab-acts-natively t
+;;       org-src-fontify-natively t
+;;       org-confirm-babel-evaluate nil
+;;       org-support-shift-select 'always)
+
+#+end_src
 ** Basic configuration
 I like a `docs/` directory in $HOME, so this is where I keep my org files. I'm
 trying out keeping notes in a single file.
