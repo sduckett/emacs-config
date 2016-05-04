@@ -972,7 +972,13 @@ I can make a geojson snippet with this:
   }
 #+end_src
 
+** Javascript
+Sometimes we have to write Javascript. I guess that's that, so let's try and
+make it a little more _sane_, ok?
 
+#+begin_src emacs-lisp :tangle yes
+  (setq-default js-indent-indent 2)
+#+end_src
 * Finally
 Turn off debugging now that initialization is done.
 
