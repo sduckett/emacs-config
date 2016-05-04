@@ -839,22 +839,20 @@ Thanks, Chris! We need to run work-tests with the profile for Datomic, Postgres,
     '(global-set-key (kbd "C-c j") #'smd/cider-jack-in-test-profile))
 #+end_src
 
-Korma functions are going to get pretty nested. This clears it up somewhat.
-
-#+begin_src emacs-lisp :tangle yes
-  (eval-after-load 'clojure-mode
-    '(define-clojure-indent
-       (korma/select 1)
-       (korma/where 1)
-       (korma/insert 1)
-       (korma/delete 1)
-       (korma/join 1)
-       (korma/update 1)))
-#+end_src
 Let's define a couple of helper functions for setting up the cider and
 autocomplete packages:
 
 #+BEGIN_SRC emacs-lisp
+  (defun smd/cider-figwheel-repl ()
+    (interactive)
+    (save-some-buffers)
+    (with-current-buffer (cider-current-repl-buffer)
+      (goto-char (point-max))
+              (insert "(require 'figwheel-sidecar.repl-api)
+               (figwheel-sidecar.repl-api/start-figwheel!) ; idempotent
+               (figwheel-sidecar.repl-api/cljs-repl)")
+              (cider-repl-return)))
+
   (defun smd/setup-cider ()
     (lambda ()
       (setq cider-history-file "~/.nrepl-history"
@@ -864,10 +862,9 @@ autocomplete packages:
             cider-popup-stacktraces-in-repl t
             nrepl-log-messages nil
             cider-repl-history-file "src/cider-repl.log")
-      (paredit-mode 1)
-      (eldoc-mode 1)
 
       (add-hook 'cider-repl-mode-hook #'company-mode)
+      (add-hook 'cider-repl-mode-hook #'paredit-mode)
       (add-hook 'cider-mode-hook #'company-mode)))
 
   (use-package cider
@@ -875,28 +872,36 @@ autocomplete packages:
     (progn
       (add-hook 'cider-mode-hook 'smd/setup-cider)
       (add-hook 'cider-repl-mode-hook 'smd/setup-cider)
-      ;; (add-hook 'cider-mode-hook 'smd/clojure-things-hook)
-      ;; (add-hook 'cider-repl-mode-hook 'smd/clojure-things-hook)
       (global-set-key (kbd "M-TAB") #'company-complete)))
+#+END_SRC
 
+When writing Clojure, I would like to always use =company-mode=, =paredit=, and
+a few other things. Also, Korma functions are going to get pretty nested, so
+let's not indent them too much.
+
+#+begin_src emacs-lisp :tangle yes
   (defun smd/clojure-things-hook ()
     "Set up clojure-y things"
     (company-mode 1)
     (paredit-mode 1)
 
-    (comment
-     (clj-refactor-mode t)
-     (cljr-add-keybindings-with-prefix "C-c C-m"))
+    (define-clojure-indent
+      (korma/select 1)
+      (korma/where 1)
+      (korma/insert 1)
+      (korma/delete 1)
+      (korma/join 1)
+      (korma/update 1))
 
     ;; NOTE: These are possibly wonky settings...
     (define-key paredit-mode-map (kbd "M-[") nil)
-    (define-key paredit-mode-map (kbd "<C-right>") 'paredit-forward-slurp-sexp))
-
+    (define-key paredit-mode-map (kbd "<C-right>") 'paredit-forward-slurp-sexp)
+    (global-set-key (kbd "C-c C-f") #'smd/cider-figwheel-repl))
 
   (use-package clojure-mode
     :config
     (progn (add-hook 'clojure-mode-hook 'smd/clojure-things-hook)))
-#+END_SRC
+#+end_src
 
 Write backup files to own directory and make backups of files even when they're
 in version control
