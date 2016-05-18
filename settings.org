@@ -365,12 +365,35 @@ I would like to be able to insert code snippets, so let's try yasnippet
 (yas-global-mode 1)
 #+END_SRC
 
+** Exporting HTML with Tufte CSS
+#+begin_src emacs-lisp :tangle yes
+  (defun smd/org-inline-css-hook (exporter)
+    "Insert custom inline css. Will try to use tufte css if it
+  exists, or style.css in the directory of the file you're working
+  on."
+    (when (eq exporter 'html)
+      (let* ((dir (ignore-errors (file-name-directory (buffer-file-name))))
+             (path (concat dir "style.css"))
+             (homestyle (or (null dir) (null (file-exists-p path))))
+             (final (if homestyle "~/src/tufte-css/tufte.css" path)))
+        (setq org-html-head-include-default-style nil)
+        (setq org-html-head (concat
+                             "<style type=\"text/css\">\n"
+                             "<!--/*--><![CDATA[/*><!--*/\n"
+                             (with-temp-buffer
+                               (insert-file-contents final)
+                               (buffer-string))
+                             "/*]]>*/-->\n"
+                             "</style>\n")))))
+
+  (add-hook 'org-export-before-processing-hook 'smd/org-inline-css-hook)
+#+end_src
 * Basics and settings used everywhere
 Mostly settings that don't fit in elsewhere, so they end up here. However, this
 does include settings that aren't part of packages and need to configure Emacs'
 built-in packages.
 
-** General settings
+* General settings
 Turn on debugging (it will be turned off at the end). In case something happens
 during loading that breaks something, it's nice to have debug information.
 
@@ -543,7 +566,7 @@ Prettify all the symbols, if available (an Emacs 24.4 feature):
                    clojure--prettify-symbols-alist)))
 #+END_SRC
 
-** Getting Emacs to play with Tmux in a terminal
+* Getting Emacs to play with Tmux in a terminal
 
 Oh, this is somewhat hellish, but there are a few things going on here:
 
@@ -640,7 +663,7 @@ Oh, this is somewhat hellish, but there are a few things going on here:
 
             (setq x (+ x 1))))))
 #+END_SRC
-** A Terminal in Emacs
+* A Terminal in Emacs
 Don't ask me about my shell of choice
 #+begin_src emacs-lisp :tangle yes
   (setq explicit-shell-file-name "/bin/zsh")
@@ -660,7 +683,7 @@ How do you switch modes again, Chris?
                    "line) [C-c C-k to switch]"))))))
 #+end_src
 
-** SMEX
+* SMEX
 
 https://github.com/nonsequitur/smex
 
@@ -674,7 +697,7 @@ https://github.com/nonsequitur/smex
   (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 #+END_SRC
 
-** Setup Ido Mode for fancy customizations
+* Setup Ido Mode for fancy customizations
 
 Use ido-mode everywhere! See https://www.masteringemacs.org/article/introduction-to-ido-mode
 
@@ -692,7 +715,7 @@ Use ido-mode everywhere! See https://www.masteringemacs.org/article/introduction
   (setq ido-create-new-buffer 'always)
 #+END_SRC
 
-** Saveplace
+* Saveplace
 Navigates back to where you were editing a file next time you open it
 
 #+BEGIN_SRC emacs-lisp
@@ -702,7 +725,7 @@ Navigates back to where you were editing a file next time you open it
   (setq save-place-file (expand-file-name ".places" user-emacs-directory)))
 #+END_SRC
 
-** Ace Jump Mode
+* Ace Jump Mode
 
 From <https://github.com/winterTTr/ace-jump-mode>, we get a nice way to jump quickly around a buffer.
 For a demo, watch the Emacs Rocks video: <https://www.youtube.com/watch?v=UZkpmegySnc>
@@ -729,7 +752,7 @@ For a demo, watch the Emacs Rocks video: <https://www.youtube.com/watch?v=UZkpme
 
 #+END_SRC
 
-** Multiple Cursors
+* Multiple Cursors
 
 I like this, having learned about it in Sublime Text and the IntelliJ family of editors.
 
@@ -742,7 +765,7 @@ I like this, having learned about it in Sublime Text and the IntelliJ family of 
   (global-set-key (kbd "C-c C-<down>") 'mc/mark-all-like-this)
 #+END_SRC
 
-** Version Control
+* Version Control
 I use git for most of my version control needs, and it's nice to use [[http://magit.vc/][Magit]] and
 not leave Emacs pretty well. Most of the interactions comes from two functions.
 
@@ -771,7 +794,7 @@ touched.
 This is useful to create a feature branch after work has already began on the
 old branch (likely but not necessarily "master")."
 
-** Programming Modes
+* Programming Modes
 (In Emacs, most programming language modes derive from prog-mode; any hooks
 created for prog-mode should apply to all language modes.) Subword mode lets me
 move between SegmentsOfACamelCasedThing and idle-highlight-mode will hightlight
@@ -811,7 +834,7 @@ Display parentheses nicely
   (add-hook 'prog-mode-hook 'show-paren-mode)
 #+END_SRC
 
-** Paredit
+* Paredit
 Paredit for all the lisps
 
 #+BEGIN_SRC emacs-lisp
@@ -824,7 +847,7 @@ Paredit for all the lisps
       (define-key paredit-mode-map (kbd ")") 'paredit-close-parenthesis)))
 #+END_SRC
 
-** Clojure
+* Clojure
 
 Thanks, Chris! We need to run work-tests with the profile for Datomic, Postgres, etc....
 
@@ -913,7 +936,7 @@ in version control
   (setq vc-make-backup-files t)
 #+END_SRC
 
-** SQL things
+* SQL things
 Sometimes you need to use a relational database for some. Since I tend to use
 PostgreSQL, we need to setup sql-postgres
 
@@ -936,14 +959,14 @@ the prompt globally, which is fine by me since I only ever use Postgres."
               (setq sql-prompt-regexp "^[_[:alpha:]]*[=][#>] ")
               (setq sql-prompt-cont-regexp "^[_[:alpha:]]*[-][#>] ")))
 #+end_src
-** Projectile
+* Projectile
 Always use Projectile because turning it on for specific things is annoying.
 
 #+BEGIN_SRC emacs-lisp
   (projectile-global-mode)
 #+END_SRC
 
-** Snippets
+* Snippets
 
 Yasnippet can be setup with a pretty big collection of templates
 
@@ -977,7 +1000,7 @@ I can make a geojson snippet with this:
   }
 #+end_src
 
-** Javascript
+* Javascript
 Sometimes we have to write Javascript. I guess that's that, so let's try and
 make it a little more _sane_, ok?
 
