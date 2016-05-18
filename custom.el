@@ -5,7 +5,8 @@
  ;; If there is more than one, they won't work right.
  '(org-agenda-files
    (quote
-    ("~/docs/org/personal/wedding.org" "~/docs/tscp/tscp.org" "~/docs/org/personal/meetups.org" "~/docs/org/tasks.org"))))
+    ("~/docs/org/personal/wedding.org" "~/docs/tscp/tscp.org" "~/docs/org/personal/meetups.org" "~/docs/org/tasks.org")))
+ '(rng-nxml-auto-validate-flag nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
