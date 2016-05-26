@@ -21,12 +21,7 @@ things that don't work, broken code, and descriptions that are hard to follow.
 This file was last exported: {{{time(%Y-%m-%d %H:%M)}}}
 
 * Getting Started
-To get started, have a look at your `~/.emacs.d/init.el`. If you've done any
-Emacs customizations there (font / color tweaks, etc), move them to a file
-(perhaps `~/.emacs.d/custom-additions.el`) that you can load them after we do
-some setup.
-
-Next, put the following in `~/.emacs.d/init.el`:
+Put the following in `~/.emacs.d/init.el`:
 
 #+BEGIN_SRC elisp
   ;; keep customized settings in their own file
@@ -42,15 +37,19 @@ Next, put the following in `~/.emacs.d/init.el`:
                      user-emacs-directory))
 #+END_SRC
 
-This gives use the ability to write a literate org-mode file using [[http://orgmode.org/worg/org-contrib/babel/intro.html][Babel]]; this
-is simply an org file with code blocks interspersed. When we load this file with
-`org-babel-load-file`, it is transformed into Emacs Lisp by stripping the text
-away from the code blocks. This is base which the rest of my configuration is
-built upon.
+To make a stylish and sharp Emacs config, write a literate org-mode file using
+[[http://orgmode.org/worg/org-contrib/babel/intro.html][Babel.]] Write some text, then put a code block like this:
+
+#+begin_src emacs-lisp :tangle yes
+  ;; this is elisp
+  (setq my/variable 13)
+#+end_src
+
+When you start emacs, =org-babel-load-file= compiles it to elisp by stripping the text
+away from the code blocks. Bam! It builds it's own configuration file.
 
 * Emacs Package Management
-The first thing to do is setup package managment with a few of our favorite
-collections.
+The first thing to do is setup package managment.
 
 #+BEGIN_SRC emacs-lisp
   (require 'package)
@@ -847,7 +846,7 @@ Paredit for all the lisps
       (define-key paredit-mode-map (kbd ")") 'paredit-close-parenthesis)))
 #+END_SRC
 
-* Clojure
+* COMMENT Clojure
 
 Thanks, Chris! We need to run work-tests with the profile for Datomic, Postgres, etc....
 
@@ -877,25 +876,29 @@ autocomplete packages:
               (cider-repl-return)))
 
   (defun smd/setup-cider ()
-    (lambda ()
-      (setq cider-history-file "~/.nrepl-history"
-            cider-hide-special-buffers t
-            cider-repl-history-size 10000
-            cider-prefer-local-resources t
-            cider-popup-stacktraces-in-repl t
-            nrepl-log-messages nil
-            cider-repl-history-file "src/cider-repl.log")
-
-      (add-hook 'cider-repl-mode-hook #'company-mode)
-      (add-hook 'cider-repl-mode-hook #'paredit-mode)
-      (add-hook 'cider-mode-hook #'company-mode)))
+    (interactive)
+    (paredit-mode 1)
+    (eldoc-mode 1)
+    (setq cider-history-file "~/.nrepl-history"
+          cider-hide-special-buffers t
+          cider-repl-history-size 10000
+          cider-prefer-local-resources t
+          cider-popup-stacktraces-in-repl t
+          nrepl-log-messages nil
+          cider-repl-history-file "src/cider-repl.log"))
 
   (use-package cider
     :init
     (progn
       (add-hook 'cider-mode-hook 'smd/setup-cider)
       (add-hook 'cider-repl-mode-hook 'smd/setup-cider)
-      (global-set-key (kbd "M-TAB") #'company-complete)))
+      ;; (global-set-key (kbd "M-TAB") #'company-complete)
+      ;; (global-set-key (kbd "C-c C-f") #'smd/cider-figwheel-repl)
+      )
+    :bind (("C-c C-f" . smd/cider-figwheel-repl)
+           ("M-TAB" . company-complete)))
+
+
 #+END_SRC
 
 When writing Clojure, I would like to always use =company-mode=, =paredit=, and
@@ -905,8 +908,9 @@ let's not indent them too much.
 #+begin_src emacs-lisp :tangle yes
   (defun smd/clojure-things-hook ()
     "Set up clojure-y things"
-    (company-mode 1)
+    (eldoc-mode 1)
     (paredit-mode 1)
+    (company-mode t)
 
     (define-clojure-indent
       (korma/select 1)
@@ -914,16 +918,14 @@ let's not indent them too much.
       (korma/insert 1)
       (korma/delete 1)
       (korma/join 1)
-      (korma/update 1))
-
-    ;; NOTE: These are possibly wonky settings...
-    (define-key paredit-mode-map (kbd "M-[") nil)
-    (define-key paredit-mode-map (kbd "<C-right>") 'paredit-forward-slurp-sexp)
-    (global-set-key (kbd "C-c C-f") #'smd/cider-figwheel-repl))
+      (korma/update 1)))
 
   (use-package clojure-mode
-    :config
-    (progn (add-hook 'clojure-mode-hook 'smd/clojure-things-hook)))
+    :config (progn
+             (use-package cider)
+             (use-package clj-refactor)
+             (add-hook 'clojure-mode-hook 'smd/clojure-things-hook))
+    :bind (("C-c w" . paredit-copy-as-kill)))
 #+end_src
 
 Write backup files to own directory and make backups of files even when they're
