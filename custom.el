@@ -3,6 +3,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(cider-repl-display-help-banner nil)
  '(org-agenda-files
    (quote
     ("~/docs/org/personal/wedding.org" "~/docs/tscp/tscp.org" "~/docs/org/personal/meetups.org" "~/docs/org/tasks.org")))
