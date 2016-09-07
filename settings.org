@@ -428,6 +428,11 @@ Prettify all the symbols, if available (an Emacs 24.4 feature):
                    clojure--prettify-symbols-alist)))
 #+END_SRC
 
+I use rgrep enough that it needs a binding
+
+#+begin_src emacs-lisp
+(global-set-key "\C-cg" 'rgrep)
+#+end_src
 * Getting Emacs to play with Tmux in a terminal
 
 Oh, this is somewhat hellish, but there are a few things going on here:
