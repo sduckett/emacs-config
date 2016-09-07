@@ -71,6 +71,7 @@ repositories.
   (add-to-list 'package-pinned-packages '(clj-refactor . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(magit . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(ob-http . "melpa-stable") t)
+  (add-to-list 'package-pinned-packages '(org . "melpa-stable") t)
 
   (package-initialize)
 #+end_src
