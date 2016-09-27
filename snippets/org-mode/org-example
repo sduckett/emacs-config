@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: org-example
+# key: org
+# --
+#+BEGIN_EXAMPLE
+
+#+END_EXAMPLE
