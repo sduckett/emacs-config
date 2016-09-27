@@ -6,7 +6,7 @@
  '(cider-repl-display-help-banner nil)
  '(org-agenda-files
    (quote
-    ("~/docs/org/personal/wedding.org" "~/docs/tscp/tscp.org" "~/docs/org/personal/meetups.org" "~/docs/org/tasks.org")))
+    ("~/docs/tscp/tscp.org" "~/docs/org/personal/meetups.org" "~/docs/org/tasks.org")))
  '(rng-nxml-auto-validate-flag nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
