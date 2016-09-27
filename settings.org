@@ -186,20 +186,24 @@ Keep timestamps in a drawer.
 
 #+BEGIN_SRC emacs-lisp
   (define-key global-map "\C-cr" 'org-capture)
-
-  (setq org-capture-templates
-        '(("t" "TODO item" entry
-           (file+headline "~/docs/org/tasks.org" "Tasks")
-           "* TODO %?")
-          ("s" "Standup" entry
-           (file+datetree "~/docs/dw.org")
-           "* %?")
-          ("j" "Journal entry" entry
-           (file+datetree "~/docs/org/personal/journal.org")
-           "* %?")
-          ("m" "Meetup note" entry
-           (file+headline  "~/docs/org/personal/meetups.org" "Tasks")
-           "* %U\n  %?")))
+  (setq
+   org-capture-templates
+   '(("h" "hungryllama" entry (file "~/docs/org/hungryllama.org") "")
+     ("t" "task" entry
+      (file+headline "~/docs/org/tasks.org" "Tasks")
+      "* TODO %?" :empty-lines-after 1)
+     ("d" "DW" entry
+      (file+datetree "~/docs/dw.org")
+      "* %?" :empty-lines-after 1)
+     ("j" "journal" entry
+      (file+datetree "~/docs/org/personal/journal.org")
+      "* %?" :empty-lines-after 1)
+     ("m" "meetup" entry
+      (file+headline "~/docs/org/personal/meetups.org" "Tasks")
+      "* %U %?")
+     ("" "" entry
+      (file "~/org/notes.org")
+      "")))
 #+END_SRC
 
 ** INPROGRESS Literate Progragramming
