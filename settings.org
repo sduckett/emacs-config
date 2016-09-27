@@ -437,6 +437,21 @@ I use rgrep enough that it needs a binding
 #+begin_src emacs-lisp
 (global-set-key "\C-cg" 'rgrep)
 #+end_src
+
+[[http://blog.burntsushi.net/ripgrep/][rigrep]] seems like a neat addition to the search tool arms race
+
+#+begin_src emacs-lisp :tangle yes
+(defun rg ()
+  (interactive
+   (let* ((regexp (read-regexp "Search for" (thing-at-point 'symbol t)))
+          (dir (read-directory-name "In directory: " nil default-directory))
+          (command (format "rg -H --no-heading \"%s\"" regexp)))
+     (with-current-buffer (get-buffer-create "*grep*")
+       (cd dir)
+       (compilation-start command #'grep-mode nil t)))))
+
+(global-set-key "\C-cG" 'rg)
+#+end_src
 * Getting Emacs to play with Tmux in a terminal
 
 Oh, this is somewhat hellish, but there are a few things going on here:
