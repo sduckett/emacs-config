@@ -72,6 +72,7 @@ repositories.
   (add-to-list 'package-pinned-packages '(magit . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(ob-http . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(org . "melpa-stable") t)
+  (add-to-list 'package-pinned-packages '(haskell-mode . "melpa-stable") t)
 
   (package-initialize)
 #+end_src
@@ -85,7 +86,9 @@ repositories.
          clojure-mode clojure-mode-extra-font-locking cider paredit paren-face
          ruby-mode ruby-test-mode inf-ruby rbenv elisp-slime-nav markdown-mode
          markdown-mode+ yaml-mode magit git-gutter git-timemachine magit-gh-pulls
-         git-annex ob-http))
+         git-annex helm helm-descbinds helm-ag helm-projectile helm-swoop  helm-gtags
+         helm-ls-git helm-flycheck helm-flyspell helm-flx ob-http
+         haskell-mode hindent))
 
     (dolist (package smd/packages-to-install)
       (unless (package-installed-p package)
@@ -733,6 +736,43 @@ Paredit for all the lisps
       (define-key paredit-mode-map (kbd ")") 'paredit-close-parenthesis)))
 #+END_SRC
 
+* Haskell
+If we're going to write Haskell, it might be nice to have some tools, eh?
+
+#+begin_src emacs-lisp
+(require 'haskell-mode)
+(require 'hindent)
+(require 'haskell)
+;(autoload 'ghc-init "ghc" nil t)
+;(autoload 'ghc-debug "ghc" nil t)
+;(add-hook 'haskell-mode-hook (lambda () (ghc-init )))
+;(add-hook ’haskell-mode-hook ’interactive-haskell-mode)
+(require 'haskell-process)
+;(require 'haskell-simple-indent)
+(require 'haskell-interactive-mode)
+;(require 'intero)
+(require 'haskell-font-lock)
+;(require 'haskell-debug)
+;(require 'sgml-mode)
+;(require 'css-mode)
+;(require 'ghci-script-mode)
+#+end_src
+
+Apparently, I need to add some things for haskell-mode to work nicely with haskell-interactive-mode
+#+begin_src emacs-lisp :tangle yes
+(eval-after-load "haskell-mode"
+  '(progn
+    (define-key haskell-mode-map (kbd "C-x C-d") nil)
+    (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+    (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-file)
+    (define-key haskell-mode-map (kbd "C-c C-b") 'haskell-interactive-switch)
+    (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-process-do-type)
+    (define-key haskell-mode-map (kbd "C-c C-i") 'haskell-process-do-info)
+    (define-key haskell-mode-map (kbd "C-c M-.") nil)
+    (define-key haskell-mode-map (kbd "M-.") 'haskell-mode-jump-to-def-or-tag)
+    (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-mode-show-type-at)
+    (define-key haskell-mode-map (kbd "C-c C-d") nil)))
+#+end_src
 * COMMENT Clojure
 
 Thanks, Chris! We need to run work-tests with the profile for Datomic, Postgres, etc....
