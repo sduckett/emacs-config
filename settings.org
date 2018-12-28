@@ -53,7 +53,7 @@ The first thing to do is setup package managment.
 
 #+BEGIN_SRC emacs-lisp
   (require 'package)
-
+  (package-initialize)
   (when (< emacs-major-version 24)
     (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
@@ -169,7 +169,6 @@ Once upon a time, I used [[https://github.com/winterTTr/ace-jump-mode][ace-jump-
  'org-babel-load-languages
  '((emacs-lisp . t)
    (clojure . t)
-   (sh . t)
    (http . t)))
 
 (setq org-babel-clojure-backend 'cider)
@@ -256,24 +255,7 @@ Keep timestamps in a drawer.
       "")))
 #+END_SRC
 
-** INPROGRESS Literate Progragramming
-I like writing in Org, so I'm testing the waters of writing my code in a
-literate style. It begins as a narrative where we use the structural aspects to
-represent namespaces. If we can draw a good outline of our code, then maybe we
-can keep the complexity down to a minimum.
-
-I'll use some tricks when I write my spells, though. We'll use Cider to evaluate
-Clojure code within an Org code-block
-
-#+BEGIN_SRC emacs-lisp
-  (setq org-babel-clojure-backend 'cider)
-  (require 'ob-clojure)
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((sh . t)
-     (clojure . t)))
-#+END_SRC
-
+** Snippets
 I would like to be able to insert code snippets, so let's try yasnippet
 
 #+BEGIN_SRC emacs-lisp
@@ -768,43 +750,6 @@ Paredit for all the lisps
 
 #+END_SRC
 
-* Haskell
-If we're going to write Haskell, it might be nice to have some tools, eh?
-
-#+begin_src emacs-lisp
-(require 'haskell-mode)
-(require 'hindent)
-(require 'haskell)
-;(autoload 'ghc-init "ghc" nil t)
-;(autoload 'ghc-debug "ghc" nil t)
-;(add-hook 'haskell-mode-hook (lambda () (ghc-init )))
-;(add-hook ’haskell-mode-hook ’interactive-haskell-mode)
-(require 'haskell-process)
-;(require 'haskell-simple-indent)
-(require 'haskell-interactive-mode)
-;(require 'intero)
-(require 'haskell-font-lock)
-;(require 'haskell-debug)
-;(require 'sgml-mode)
-;(require 'css-mode)
-;(require 'ghci-script-mode)
-#+end_src
-
-Apparently, I need to add some things for haskell-mode to work nicely with haskell-interactive-mode
-#+begin_src emacs-lisp :tangle yes
-  (eval-after-load "haskell-mode"
-    '(progn
-      (define-key haskell-mode-map (kbd "C-x C-d") nil)
-      (define-key haskell-mode-map (kbd "C-c M-.") nil)
-      (define-key haskell-mode-map (kbd "C-c C-d") nil)
-      (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
-      (define-key haskell-mode-map (kbd "C-c C-b") 'haskell-interactive-switch)
-      (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-file)
-      (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-process-do-type)
-      (define-key haskell-mode-map (kbd "C-c C-i") 'haskell-process-do-info)
-      (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-mode-show-type-at)
-      (define-key haskell-mode-map (kbd "M-.")     'haskell-mode-jump-to-def-or-tag)))
-#+end_src
 * Clojure
 
 Running =(cider-jack-in)= is sometimes enough, but when you need to jack-in with

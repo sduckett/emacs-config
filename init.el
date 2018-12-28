@@ -1,5 +1,4 @@
 ;; keep customize settings in their own file
-(package-initialize)
 (setq custom-file "~/.emacs.d/custom.el")
 (when (file-exists-p custom-file)
   (load custom-file))
