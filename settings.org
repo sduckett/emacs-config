@@ -68,7 +68,8 @@ repositories.
 
 #+begin_src emacs-lisp :tangle yes
   (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
-  (add-to-list 'package-pinned-packages '(clj-refactor . "melpa-stable") t)
+  (add-to-list 'package-pinned-packages '(clj-refactor . "melpa") t)
+  (add-to-list 'package-pinned-packages '(rainbow-delimiters . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(magit . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(ob-http . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(org . "melpa-stable") t)
@@ -78,21 +79,61 @@ repositories.
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-    (defvar smd/packages-to-install
-      '(use-package gist popup company smex ido-vertical-mode
-         ido-ubiquitous yasnippet projectile multiple-cursors ace-jump-mode
-         idle-highlight-mode highlight-symbol highlight-numbers highlight-quoted
-         org htmlize gnuplot-mode gnuplot wc-mode flycheck flycheck-tip
-         clojure-mode clojure-mode-extra-font-locking cider paredit paren-face
-         ruby-mode ruby-test-mode inf-ruby rbenv elisp-slime-nav markdown-mode
-         markdown-mode+ yaml-mode magit git-gutter git-timemachine magit-gh-pulls
-         git-annex helm helm-descbinds helm-ag helm-projectile helm-swoop  helm-gtags
-         helm-ls-git helm-flycheck helm-flyspell helm-flx ob-http
-         haskell-mode hindent))
+  (defvar smd/packages-to-install
+    '(use-package
+       avy                            ; because ace-jump-mode is no longer maintained
+       popup                          ;
+       company                        ;
+       smex                           ;
+       ido-vertical-mode              ;
+       ido-completing-read+           ;
+       yasnippet                      ;
+       projectile                     ;
+       multiple-cursors               ;
+       idle-highlight-mode
+       highlight-symbol
+       highlight-numbers
+       highlight-quoted
+       org                            ; Life without org-mode is insane
+       htmlize
+       wc-mode
+       flycheck
+       flycheck-tip
+       clojure-mode
+       clojure-mode-extra-font-locking
+       cider
+       paredit
+       paren-face
+       rainbow-delimiters
+       ruby-mode
+       ruby-test-mode
+       inf-ruby
+       rbenv
+       elisp-slime-nav
+       markdown-mode
+       markdown-mode+
+       yaml-mode
+       magit
+       git-gutter
+       git-timemachine
+       git-annex
+       helm
+       helm-descbinds
+       helm-ag
+       helm-projectile
+       helm-swoop
+       helm-gtags
+       helm-ls-git
+       helm-flycheck
+       helm-flyspell
+       helm-flx
+       ob-http
+       haskell-mode
+       typescript-mode))
 
-    (dolist (package smd/packages-to-install)
-      (unless (package-installed-p package)
-        (package-install package)))
+  (dolist (package smd/packages-to-install)
+    (unless (package-installed-p package)
+      (package-install package)))
 #+end_src
 
 Load [[https://github.com/jwiegley/use-package][use-package]] for loading packages everywhere else. If you set
@@ -104,7 +145,23 @@ of this? Does it make things simpler?
   (setq use-package-verbose nil)
 #+end_src
 
-* Configuration
+* Moving within a buffer
+Once upon a time, I used [[https://github.com/winterTTr/ace-jump-mode][ace-jump-mode]], but it looks to be unmaintained
+(or perfect?). Nowadays, there's also [[https://github.com/abo-abo/avy][avy-mode]].
+
+#+begin_src emacs-lisp :tange yes
+  (use-package avy
+    :ensure t
+    :bind (("C-c '" . avy-goto-char)
+           ;("C-:" . avy-goto-char)
+           ("C-c ;" . avy-goto-char-2)
+           ("M-g f" . avy-goto-line)
+           ("M-g f" . avy-goto-line))
+    :config (progn
+              (avy-setup-default)
+              (global-set-key (kbd "C-c C-j") 'avy-resume)))
+#+end_src
+
 * Using org-mode to keep track of things
 ** Babel configuration
 #+begin_src emacs-lisp :tangle yes
@@ -115,17 +172,7 @@ of this? Does it make things simpler?
    (sh . t)
    (http . t)))
 
-;; Specify the Clojure back-end we want to use in Org-mode.
-;; I personally use Cider, but one could specify Slime
 (setq org-babel-clojure-backend 'cider)
-
-;; Let's have pretty source code blocks
-;; (setq org-edit-src-content-indentation 0
-;;       org-src-tab-acts-natively t
-;;       org-src-fontify-natively t
-;;       org-confirm-babel-evaluate nil
-;;       org-support-shift-select 'always)
-
 #+end_src
 ** Basic configuration
 I like a `docs/` directory in $HOME, so this is where I keep my org files. I'm
@@ -352,10 +399,10 @@ Don't make me type "yes" at a prompt
 (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
-Set up the fill-column to 80 characters and set tab width to 2
+Set up the fill-column to 72 characters and set tab width to 2
 
 #+BEGIN_SRC emacs-lisp
-(setq-default fill-column 80)
+(setq-default fill-column 72)
 (setq-default default-tab-width 2)
 (setq-default indent-tabs-mode nil)
 #+END_SRC
@@ -553,12 +600,16 @@ Oh, this is somewhat hellish, but there are a few things going on here:
             (setq x (+ x 1))))))
 #+END_SRC
 * A Terminal in Emacs
-Don't ask me about my shell of choice
+
+Use =zsh= as the default shell (it would be nice to not have to press
+=RET= to confirm the default, though.)
+
 #+begin_src emacs-lisp :tangle yes
   (setq explicit-shell-file-name "/bin/zsh")
 #+end_src
 
 How do you switch modes again, Chris?
+
 #+begin_src emacs-lisp :tangle yes
   (add-hook 'term-mode-hook '(lambda ()
     (setq mode-line-format
@@ -574,25 +625,24 @@ How do you switch modes again, Chris?
 
 * SMEX
 
-https://github.com/nonsequitur/smex
+[[https://github.com/nonsequitur/smex/][Smex is a M-x enhancement for Emacs.]]
 
 #+BEGIN_SRC emacs-lisp
-  (smex-initialize)
-
-  (global-set-key (kbd "M-x") 'smex)
-  (global-set-key (kbd "M-X") 'smex-major-mode-commands)
-
-  ;; This is your old M-x.
-  (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
+  (use-package smex
+    :ensure t
+    :bind (("M-x" . smex)
+           ("M-X" . smex-major-mode-commands)
+           ("C-c C-c M-x" . execute-extended-command))
+    :config (smex-initialize))
 #+END_SRC
 
-* Setup Ido Mode for fancy customizations
+* ido-mode everywhere
 
 Use ido-mode everywhere! See https://www.masteringemacs.org/article/introduction-to-ido-mode
 
 #+BEGIN_SRC emacs-lisp
   (require 'ido-vertical-mode)
-  (require 'ido-ubiquitous)
+  (require 'ido-completing-read+)
 
   (ido-mode 1)
   (ido-everywhere 1)
@@ -614,44 +664,25 @@ Navigates back to where you were editing a file next time you open it
   (setq save-place-file (expand-file-name ".places" user-emacs-directory)))
 #+END_SRC
 
-* Ace Jump Mode
-
-From <https://github.com/winterTTr/ace-jump-mode>, we get a nice way to jump quickly around a buffer.
-For a demo, watch the Emacs Rocks video: <https://www.youtube.com/watch?v=UZkpmegySnc>
-
-#+BEGIN_SRC emacs-lisp
-  (autoload
-    'ace-jump-mode
-    "ace-jump-mode"
-    "Emacs quick move minor mode"
-    t)
-
-  ;; you can select the key you prefer to
-  (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
-
-  (autoload
-    'ace-jump-mode-pop-mark
-    "ace-jump-mode"
-    "Ace jump back:-)"
-    t)
-  (eval-after-load "ace-jump-mode"
-    '(ace-jump-mode-enable-mark-sync))
-  (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
-
-
-#+END_SRC
-
 * Multiple Cursors
 
 I like this, having learned about it in Sublime Text and the IntelliJ family of editors.
 
 #+BEGIN_SRC emacs-lisp
-  (require 'multiple-cursors)
+  (use-package multiple-cursors
+    :ensure t
+    :bind (("C-c e"        . mc/edit-lines)
+           ("C-<down>"     . mc/mark-next-like-this)
+           ("C-<up>"       . mc/mark-previous-like-this)
+           ("C-c C-<down>" . mc/mark-all-like-this)))
 
-  (global-set-key (kbd "C-c e") 'mc/edit-lines)
-  (global-set-key (kbd "C-<down>") 'mc/mark-next-like-this)
-  (global-set-key (kbd "C-<up>") 'mc/mark-previous-like-this)
-  (global-set-key (kbd "C-c C-<down>") 'mc/mark-all-like-this)
+
+  ;(require 'multiple-cursors)
+
+  ;(global-set-key (kbd "C-c e") 'mc/edit-lines)
+  ;(global-set-key (kbd "C-<down>") 'mc/mark-next-like-this)
+  ;(global-set-key (kbd "C-<up>") 'mc/mark-previous-like-this)
+  ;(global-set-key (kbd "C-c C-<down>") 'mc/mark-all-like-this)
 #+END_SRC
 
 * Version Control
@@ -733,7 +764,8 @@ Paredit for all the lisps
     (progn
       (define-key paredit-mode-map (kbd "M-)") 'paredit-forward-slurp-sexp)
       (define-key paredit-mode-map (kbd "M-(") 'paredit-forward-barf-sexp)
-      (define-key paredit-mode-map (kbd ")") 'paredit-close-parenthesis)))
+      (define-key paredit-mode-map (kbd ")")   'paredit-close-parenthesis)))
+
 #+END_SRC
 
 * Haskell
@@ -760,36 +792,35 @@ If we're going to write Haskell, it might be nice to have some tools, eh?
 
 Apparently, I need to add some things for haskell-mode to work nicely with haskell-interactive-mode
 #+begin_src emacs-lisp :tangle yes
-(eval-after-load "haskell-mode"
-  '(progn
-    (define-key haskell-mode-map (kbd "C-x C-d") nil)
-    (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
-    (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-file)
-    (define-key haskell-mode-map (kbd "C-c C-b") 'haskell-interactive-switch)
-    (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-process-do-type)
-    (define-key haskell-mode-map (kbd "C-c C-i") 'haskell-process-do-info)
-    (define-key haskell-mode-map (kbd "C-c M-.") nil)
-    (define-key haskell-mode-map (kbd "M-.") 'haskell-mode-jump-to-def-or-tag)
-    (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-mode-show-type-at)
-    (define-key haskell-mode-map (kbd "C-c C-d") nil)))
+  (eval-after-load "haskell-mode"
+    '(progn
+      (define-key haskell-mode-map (kbd "C-x C-d") nil)
+      (define-key haskell-mode-map (kbd "C-c M-.") nil)
+      (define-key haskell-mode-map (kbd "C-c C-d") nil)
+      (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+      (define-key haskell-mode-map (kbd "C-c C-b") 'haskell-interactive-switch)
+      (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-file)
+      (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-process-do-type)
+      (define-key haskell-mode-map (kbd "C-c C-i") 'haskell-process-do-info)
+      (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-mode-show-type-at)
+      (define-key haskell-mode-map (kbd "M-.")     'haskell-mode-jump-to-def-or-tag)))
 #+end_src
-* COMMENT Clojure
+* Clojure
 
-Thanks, Chris! We need to run work-tests with the profile for Datomic, Postgres, etc....
+Running =(cider-jack-in)= is sometimes enough, but when you need to jack-in with
+a specific profile, it should be easy.
 
-#+begin_src emacs-lisp
+#+BEGIN_SRC emacs-lisp
   (defun smd/cider-jack-in-test-profile ()
     (interactive)
     (let ((cider-lein-parameters (concat "with-profile +test "
                                          cider-lein-parameters)))
       (cider-jack-in)))
+#+END_SRC
 
-  (eval-after-load 'clojure-mode
-    '(global-set-key (kbd "C-c j") #'smd/cider-jack-in-test-profile))
-#+end_src
-
-Let's define a couple of helper functions for setting up the cider and
-autocomplete packages:
+When working on Clojurescript projects that are setup for Figwheel, running
+=(cider-jack-in-clojurescript)= will launch both a Clojure and a Clojurescript
+REPL. Once they come up, you can start a Figwheel session with =C-c C-f=.
 
 #+BEGIN_SRC emacs-lisp
   (defun smd/cider-figwheel-repl ()
@@ -797,48 +828,68 @@ autocomplete packages:
     (save-some-buffers)
     (with-current-buffer (cider-current-repl-buffer)
       (goto-char (point-max))
-              (insert "(require 'figwheel-sidecar.repl-api)
+      (insert "(require 'figwheel-sidecar.repl-api)
                (figwheel-sidecar.repl-api/start-figwheel!) ; idempotent
                (figwheel-sidecar.repl-api/cljs-repl)")
-              (cider-repl-return)))
+      (cider-repl-return)))
+#+END_SRC
 
+Evaluate a function, but instead of going to the repl it goes to the browser with =C-c C-s=?
+
+#+BEGIN_SRC emacs-lisp
+  (defun smd/cider-send-to-repl ()
+    (interactive)
+    (let ((s (buffer-substring-no-properties
+              (nth 0 (cider-last-sexp 'bounds))
+              (nth 1 (cider-last-sexp 'bounds)))))
+      (with-current-buffer (cider-current-connection)
+        (insert s)
+        (cider-repl-return))))
+#+END_SRC
+
+CIDER is pretty easy to setup. Cider is also pretty easy to homebrew.
+
+#+BEGIN_SRC emacs-lisp
   (defun smd/setup-cider ()
     (interactive)
     (paredit-mode 1)
     (eldoc-mode 1)
     (setq cider-history-file "~/.nrepl-history"
           cider-hide-special-buffers t
+          cider-repl-display-help-banner nil
           cider-repl-history-size 10000
           cider-prefer-local-resources t
           cider-popup-stacktraces-in-repl t
           nrepl-log-messages nil
-          cider-repl-history-file "src/cider-repl.log"))
+          paredit-mode t
+          company-mode t
+          cider-repl-history-file "~/.cider-repl.log")
+
+    (setq cider-cljs-lein-repl
+          "(do (require 'figwheel-sidecar.repl-api)
+             (figwheel-sidecar.repl-api/start-figwheel!)
+             (figwheel-sidecar.repl-api/cljs-repl))"))
 
   (use-package cider
     :init
-    (progn
-      (add-hook 'cider-mode-hook 'smd/setup-cider)
-      (add-hook 'cider-repl-mode-hook 'smd/setup-cider)
-      ;; (global-set-key (kbd "M-TAB") #'company-complete)
-      ;; (global-set-key (kbd "C-c C-f") #'smd/cider-figwheel-repl)
-      )
+    (add-hook #'cider-mode-hook #'smd/setup-cider)
+    (add-hook #'cider-repl-mode-hook #'smd/setup-cider)
+    ;(add-hook #'cider-mode-hook #'eos/clojure-things-hook)
+    ;(add-hook #'cider-repl-mode-hook #'eos/clojure-things-hook)
     :bind (("C-c C-f" . smd/cider-figwheel-repl)
-           ("M-TAB" . company-complete)))
-
-
+           ("C-c C-s" . smd/cider-send-to-repl)
+           ("M-TAB"   . company-complete)))
 #+END_SRC
 
-When writing Clojure, I would like to always use =company-mode=, =paredit=, and
-a few other things. Also, Korma functions are going to get pretty nested, so
+=company= makes autocompletion sort of work.
+=paredit= and =rainbow-delimiters= make the parentheses pretty nice.
+=eldoc= shows you the docstring of a function in the echo area.
+
+Korma functions are going to get pretty nested, so
 let's not indent them too much.
 
-#+begin_src emacs-lisp :tangle yes
-  (defun smd/clojure-things-hook ()
-    "Set up clojure-y things"
-    (eldoc-mode 1)
-    (paredit-mode 1)
-    (company-mode t)
-
+#+BEGIN_SRC emacs-lisp
+  (defun smd/korma-indentation ()
     (define-clojure-indent
       (korma/select 1)
       (korma/where 1)
@@ -847,13 +898,28 @@ let's not indent them too much.
       (korma/join 1)
       (korma/update 1)))
 
+  (defun smd/clojure-mode-hook ()
+    (cljr-add-keybindings-with-prefix "C-c C-m")
+    (rainbow-delimiters-mode t)
+    (projectile-mode 1)
+    (linum-mode 1)
+    (paredit-mode 1)
+    (company-mode 1)
+    (smd/korma-indentation))
+
   (use-package clojure-mode
     :config (progn
              (use-package cider)
              (use-package clj-refactor)
-             (add-hook 'clojure-mode-hook 'smd/clojure-things-hook))
-    :bind (("C-c w" . paredit-copy-as-kill)))
-#+end_src
+             (use-package eldoc)
+             (use-package company)
+             (use-package paredit)
+             (use-package projectile)
+             (add-hook 'clojure-mode-hook 'smd/clojure-mode-hook))
+    :bind (("C-c w" . paredit-copy-as-kill)
+           ("C-c j" . smd/cider-jack-in-test-profile)
+           ("C-c C-l" . cider-repl-clear-buffer)))
+#+END_SRC
 
 Write backup files to own directory and make backups of files even when they're
 in version control
@@ -892,7 +958,10 @@ the prompt globally, which is fine by me since I only ever use Postgres."
 Always use Projectile because turning it on for specific things is annoying.
 
 #+BEGIN_SRC emacs-lisp
-  (projectile-global-mode)
+  (use-package projectile
+    :diminish projectile-mode
+    :init (setq projectile-keymap-prefix (kbd "C-c C-p"))
+    :config (projectile-global-mode))
 #+END_SRC
 
 * Snippets
@@ -936,6 +1005,101 @@ make it a little more _sane_, ok?
 #+begin_src emacs-lisp :tangle yes
   (setq-default js-indent-indent 2)
 #+end_src
+* Java
+[[https://github.com/emacs-lsp/lsp-java][lsp-java]] provides integration with the Eclipse JDT Language Server. This
+makes doing IDE-like things with Java much nicer inside Emacs.
+
+Here's a minimal configuration from the project's README. First, get the latest JDT.
+
+#+BEGIN_EXAMPLE
+  rm -rf ~/.emacs.d/eclipse.jdt.ls/server/
+  mkdir -p ~/.emacs.d/eclipse.jdt.ls/server/
+  wget http://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz -O /tmp/jdt-latest.tar
+  tar xf /tmp/jdt-latest.tar -C ~/.emacs.d/eclipse.jdt.ls/server/
+#+END_EXAMPLE
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (require 'cc-mode)
+
+  ;; (use-package treemacs
+  ;;   :ensure t)
+
+  (use-package lsp-mode
+    :ensure t
+    :init (setq lsp-inhibit-message t
+                lsp-eldoc-render-all t
+                lsp-highlight-symbol-at-point t))
+
+  (use-package company-lsp
+    :after  company
+    :ensure t
+    :config
+    (add-hook 'java-mode-hook (lambda () (push 'company-lsp company-backends)))
+    (setq company-lsp-enable-snippet t
+          company-lsp-cache-candidates t)
+    (push 'java-mode company-global-modes))
+
+  (use-package lsp-ui
+    :ensure t
+    :config
+    (setq lsp-ui-doc-enable t
+          lsp-ui-doc-position 'top
+          lsp-ui-doc-use-childframe t
+          lsp-ui-flycheck-list-position 'bottom
+          lsp-ui-flycheck-live-reporting t
+          lsp-ui-imenu-enable nil
+          lsp-ui-peek-enable t
+          lsp-ui-peek-always-show t
+          lsp-ui-sideline-enable t
+          lsp-ui-sideline-show-symbol nil
+          lsp-ui-sideline-show-hover nil
+          lsp-ui-sideline-show-code-actions nil
+          lsp-ui-sideline-show-flycheck t
+          lsp-ui-sideline-ignore-duplicate t
+          lsp-ui-sideline-update-mode 'line))
+
+  (use-package lsp-java
+    :ensure t
+    :requires (lsp-ui-flycheck lsp-ui-sideline)
+    :init (setq
+           lsp-java-organize-imports nil
+           lsp-java-save-action-organize-imports nil)
+    :config
+    (add-hook 'java-mode-hook  'lsp-java-enable)
+    (add-hook 'java-mode-hook  'dap-mode)
+    (add-hook 'java-mode-hook  'flycheck-mode)
+    (add-hook 'java-mode-hook  'company-mode)
+    (add-hook 'java-mode-hook  'rainbow-delimiters-mode)
+    (add-hook 'java-mode-hook  'linum-mode)
+    (setq lsp-java--workspace-folders
+          (list "/Users/smd/src/democracyworks/colorado-rla/server/eclipse-project/")))
+
+  (use-package dap-mode
+    :ensure t
+    :after lsp-mode
+    :config
+    (dap-mode t)
+    (dap-ui-mode t))
+
+  (use-package dap-java
+    :after (lsp-java))
+
+  ;; (use-package lsp-java-treemacs
+  ;;   :after (treemacs))
+#+end_src
+
+* Typescript
+
+First, we should enable Typescript mode for the right  things
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package typescript-mode
+    :ensure t
+    :init (setq lsp-inhibit-message nil
+                lsp-eldoc-render-all t
+                lsp-highlight-symbol-at-point t))
+#+end_src
+
 * Finally
 Turn off debugging now that initialization is done.
 
