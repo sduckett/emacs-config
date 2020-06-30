@@ -58,8 +58,8 @@ The first thing to do is setup package managment.
     (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
   (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-  (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
 #+END_SRC
 
 Some of the packages I use get released with breaking changes from time to time,
