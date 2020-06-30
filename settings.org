@@ -484,6 +484,24 @@ I use rgrep enough that it needs a binding
 
 (global-set-key "\C-cG" 'rg)
 #+end_src
+* Managing Credentials
+
+We can [[https://support.1password.com/command-line-getting-started/][access 1Password vaults from the command line]]. The tool uses
+environment variables and has a time-out, so it doesn't play nicely (out
+of the box) with Emacs running as a daemon.
+
+#+BEGIN_SRC emacs-lisp
+  (defun smd/op-signin ()
+    "Unlock a 1Password vault (currently hardcoded) and set the proper ENV"
+    (interactive)
+    (let* ((pw
+            (read-passwd "1password password: "))
+           (sessionid
+            (shell-command-to-string (concat "echo " pw " | " "op signin democracyworks --raw"))))
+      (setenv "OP_SESSION_democracyworks"
+              (string-trim sessionid))))
+#+END_SRC
+
 * Getting Emacs to play with Tmux in a terminal
 
 Oh, this is somewhat hellish, but there are a few things going on here:
