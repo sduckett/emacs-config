@@ -317,6 +317,16 @@ Don't beep.
 (setq ring-bell-function (lambda()))
 #+END_SRC
 
+Write backup files to own directory and make backups of files even when
+they're in version control
+
+#+BEGIN_SRC emacs-lisp
+  (setq backup-directory-alist
+        `(("." . ,(expand-file-name
+                   (concat user-emacs-directory "backups")))))
+  (setq vc-make-backup-files t)
+#+END_SRC
+
 Always indent, per mode, on newline.
 
 #+BEGIN_SRC emacs-lisp
@@ -350,7 +360,8 @@ If you change buffer, or focus, disable the current buffer's mark:
 (transient-mark-mode t)
 #+END_SRC
 
-Turn off all kinds of modes, I don't need the menu bar, or the tool bar:
+Turn off all kinds of modes: I don't need the menu bar, or the tool bar.
+Blinking is just horrid.
 
 #+BEGIN_SRC emacs-lisp
 (when (functionp 'menu-bar-mode)
@@ -450,7 +461,7 @@ Let's bind some things to move around buffers easily
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-c y") 'bury-buffer)
-  ;;(global-set-key (kbd "C-c r") 'revert-buffer)
+  (global-set-key (kbd "C-c b") 'revert-buffer)
 #+END_SRC
 
 Prettify all the symbols, if available (an Emacs 24.4 feature):
@@ -802,7 +813,7 @@ REPL. Once they come up, you can start a Figwheel session with =C-c C-f=.
       (cider-repl-return)))
 #+END_SRC
 
-Evaluate a function, but instead of going to the repl it goes to the browser with =C-c C-s=?
+Sometimes it is nice to send a form to the repl and evaluate it.
 
 #+BEGIN_SRC emacs-lisp
   (defun smd/cider-send-to-repl ()
@@ -842,10 +853,8 @@ CIDER is pretty easy to setup. Cider is also pretty easy to homebrew.
     :init
     (add-hook #'cider-mode-hook #'smd/setup-cider)
     (add-hook #'cider-repl-mode-hook #'smd/setup-cider)
-    ;(add-hook #'cider-mode-hook #'eos/clojure-things-hook)
-    ;(add-hook #'cider-repl-mode-hook #'eos/clojure-things-hook)
     :bind (("C-c C-f" . smd/cider-figwheel-repl)
-           ("C-c C-s" . smd/cider-send-to-repl)
+           ("C-c C-s ." . smd/cider-send-to-repl)
            ("M-TAB"   . company-complete)))
 #+END_SRC
 
@@ -886,17 +895,8 @@ let's not indent them too much.
              (add-hook 'clojure-mode-hook 'smd/clojure-mode-hook))
     :bind (("C-c w" . paredit-copy-as-kill)
            ("C-c j" . smd/cider-jack-in-test-profile)
+           ("C-c i" . imenu)
            ("C-c C-l" . cider-repl-clear-buffer)))
-#+END_SRC
-
-Write backup files to own directory and make backups of files even when they're
-in version control
-
-#+BEGIN_SRC emacs-lisp
-  (setq backup-directory-alist
-        `(("." . ,(expand-file-name
-                   (concat user-emacs-directory "backups")))))
-  (setq vc-make-backup-files t)
 #+END_SRC
 
 * SQL things
