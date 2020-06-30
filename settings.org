@@ -63,15 +63,19 @@ so it seems prudent to only use the versions hosted by the "stable"
 repositories.
 
 #+begin_src emacs-lisp :tangle yes
-  (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
+  (add-to-list 'package-pinned-packages '(cider . "melpa") t)
   (add-to-list 'package-pinned-packages '(clj-refactor . "melpa") t)
   (add-to-list 'package-pinned-packages '(rainbow-delimiters . "melpa-stable") t)
-  (add-to-list 'package-pinned-packages '(magit . "melpa-stable") t)
+  (add-to-list 'package-pinned-packages '(magit . "melpa") t)
   (add-to-list 'package-pinned-packages '(ob-http . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(org . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(haskell-mode . "melpa-stable") t)
 
   (package-initialize)
+
+  (unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
@@ -95,9 +99,13 @@ repositories.
        wc-mode
        flycheck
        flycheck-tip
+       flycheck-joker
+       flycheck-clj-kondo
+       clj-refactor
        clojure-mode
        clojure-mode-extra-font-locking
        cider
+       origami
        paredit
        paren-face
        rainbow-delimiters
@@ -110,6 +118,7 @@ repositories.
        markdown-mode+
        yaml-mode
        magit
+       forge
        git-gutter
        git-timemachine
        git-annex
