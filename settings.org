@@ -793,8 +793,9 @@ a specific profile, it should be easy.
   (defun smd/cider-jack-in-test-profile ()
     (interactive)
     (let ((cider-lein-parameters (concat "with-profile +test "
-                                         cider-lein-parameters)))
-      (cider-jack-in)))
+                                        cider-lein-parameters)))
+      (set-variable 'cider-lein-parameters cider-lein-parameters)
+      (cider-jack-in '())))
 #+END_SRC
 
 When working on Clojurescript projects that are setup for Figwheel, running
