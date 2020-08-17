@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: md-pull-request
+# key: md
+# --
+
+** Overview
+
+This is a thing that does something neaet and useful. You can read more backstory in [the related jira ticket](url).
+
+** How to test this?
+
+1. do thing one,
+2. do thing two,
+3. profit!

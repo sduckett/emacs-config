@@ -940,12 +940,12 @@ Yasnippet can be setup with a pretty big collection of templates
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "M-=") 'yas-insert-snippet)
 
-  ;; (setq yas-snippet-dirs
-  ;;       '("~/.emacs.d/snippets"                 ;; personal snippets
+  (setq yas-snippet-dirs
+        '("~/.emacs.d/snippets"                 ;; personal snippets
   ;;         "/path/to/some/collection/"           ;; foo-mode and bar-mode snippet collection
   ;;         "/path/to/yasnippet/yasmate/snippets" ;; the yasmate collection
   ;;         "/path/to/yasnippet/snippets"         ;; the default collection
-  ;;         ))
+          ))
 
   (yas-global-mode 1) ;; or M-x yas-reload-all if you've started YASnippet already.
 #+END_SRC

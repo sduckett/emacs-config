@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: md-user-story
+# key: md
+# --
+
+* Title: [general goal] by [deadline, where applicable] for [tool]
+* Deadline: [where applicable]
+* User Story
+As a [user/admin/dev] I want to [goal] so that [outcome].
+* Background
+* Acceptance Criteria
+- Where does this feature sit in the existing workflow? Is there a particular page/URL? What should the user/admin see when navigating there?
+- Write out the basic steps to test the positive/successful use case for this feature. “When user does x, outcome should be y”
+- Document any error states that need to be covered. “If x is missing/wrong/etc, outcome should be y”
+- Document anything that should not be allowed. “If x would result in y, outcome should be z.”
+- Specify the user access rules - who should be able to use/see this feature? Who shouldn’t?
+- If the user interface needs to look a certain way, write out those requirements and attach a wireframe or mockup. Indicate how close to the mockup you need the final version to be - exact, or in the ballpark.
