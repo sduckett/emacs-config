@@ -23,7 +23,7 @@ This file was last exported: {{{time(%Y-%m-%d %H:%M)}}}
 * Getting Started
 Put the following in `~/.emacs.d/init.el`:
 
-#+BEGIN_SRC elisp
+#+BEGIN_SRC elisp :tangle no
   ;; keep customized settings in their own file
   (setq custom-file "~/.emacs.d/custom.el")
   (when (file-exists-p custom-file)
@@ -53,7 +53,7 @@ The first thing to do is setup package managment.
 
 #+BEGIN_SRC emacs-lisp
   (require 'package)
-  (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+  ;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
   (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
 #+END_SRC
@@ -74,71 +74,71 @@ repositories.
   (package-initialize)
 
   (unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+    (package-refresh-contents)
+    (package-install 'use-package))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-  (defvar smd/packages-to-install
-    '(use-package
-       avy                            ; because ace-jump-mode is no longer maintained
-       popup                          ;
-       company                        ;
-       smex                           ;
-       ido-vertical-mode              ;
-       ido-completing-read+           ;
-       yasnippet                      ;
-       projectile                     ;
-       multiple-cursors               ;
-       idle-highlight-mode
-       highlight-symbol
-       highlight-numbers
-       highlight-quoted
-       org                            ; Life without org-mode is insane
-       htmlize
-       wc-mode
-       flycheck
-       flycheck-tip
-       flycheck-joker
-       flycheck-clj-kondo
-       clj-refactor
-       clojure-mode
-       clojure-mode-extra-font-locking
-       cider
-       origami
-       paredit
-       paren-face
-       rainbow-delimiters
-       ruby-mode
-       ruby-test-mode
-       inf-ruby
-       rbenv
-       elisp-slime-nav
-       markdown-mode
-       markdown-mode+
-       yaml-mode
-       magit
-       forge
-       git-gutter
-       git-timemachine
-       git-annex
-       helm
-       helm-descbinds
-       helm-ag
-       helm-projectile
-       helm-swoop
-       helm-gtags
-       helm-ls-git
-       helm-flycheck
-       helm-flyspell
-       helm-flx
-       ob-http
-       haskell-mode
-       typescript-mode))
+    (defvar smd/packages-to-install
+      '(use-package
+         avy                            ; for jump-to-char tooling
+         popup                          ;
+         company                        ;
+         smex                           ;
+         ido-vertical-mode              ;
+         ido-completing-read+           ;
+         yasnippet                      ;
+         projectile                     ;
+         multiple-cursors               ;
+         idle-highlight-mode
+         highlight-symbol
+         highlight-numbers
+         highlight-quoted
+         org                            ; Life without org-mode is insane
+         htmlize
+         wc-mode
+         flycheck
+         flycheck-tip
+         flycheck-joker
+         flycheck-clj-kondo
+         clj-refactor
+         clojure-mode
+         clojure-mode-extra-font-locking
+         cider
+         origami
+         paredit
+         paren-face
+         rainbow-delimiters
+         ruby-mode
+         ruby-test-mode
+         inf-ruby
+         rbenv
+         elisp-slime-nav
+         markdown-mode
+         yaml-mode
+         magit
+         forge
+         git-gutter
+         git-timemachine
+         git-annex
+         helm
+         helm-descbinds
+         helm-ag
+         helm-projectile
+         helm-swoop
+         helm-gtags
+         helm-ls-git
+         helm-flycheck
+         helm-flyspell
+         helm-flx
+         ob-http
+         haskell-mode
+         typescript-mode
+         window-numbering))
 
-  (dolist (package smd/packages-to-install)
-    (unless (package-installed-p package)
-      (package-install package)))
+    (dolist (package smd/packages-to-install)
+      (unless (package-installed-p package)
+        (package-install package)))
 #+end_src
 
 Load [[https://github.com/jwiegley/use-package][use-package]] for loading packages everywhere else. If you set
@@ -674,10 +674,12 @@ Use ido-mode everywhere! See https://www.masteringemacs.org/article/introduction
 Navigates back to where you were editing a file next time you open it
 
 #+BEGIN_SRC emacs-lisp
-(use-package saveplace
-  :init
-  (setq-default save-place t)
-  (setq save-place-file (expand-file-name ".places" user-emacs-directory)))
+  (use-package saveplace
+    :init
+    (save-place-mode 1)
+    :config
+    (setq save-place-file
+          (expand-file-name ".places" user-emacs-directory)))
 #+END_SRC
 
 * Multiple Cursors
@@ -798,22 +800,6 @@ a specific profile, it should be easy.
       (cider-jack-in '())))
 #+END_SRC
 
-When working on Clojurescript projects that are setup for Figwheel, running
-=(cider-jack-in-clojurescript)= will launch both a Clojure and a Clojurescript
-REPL. Once they come up, you can start a Figwheel session with =C-c C-f=.
-
-#+BEGIN_SRC emacs-lisp
-  (defun smd/cider-figwheel-repl ()
-    (interactive)
-    (save-some-buffers)
-    (with-current-buffer (cider-current-repl-buffer)
-      (goto-char (point-max))
-      (insert "(require 'figwheel-sidecar.repl-api)
-               (figwheel-sidecar.repl-api/start-figwheel!) ; idempotent
-               (figwheel-sidecar.repl-api/cljs-repl)")
-      (cider-repl-return)))
-#+END_SRC
-
 Sometimes it is nice to send a form to the repl and evaluate it.
 
 #+BEGIN_SRC emacs-lisp
@@ -832,31 +818,29 @@ CIDER is pretty easy to setup. Cider is also pretty easy to homebrew.
 #+BEGIN_SRC emacs-lisp
   (defun smd/setup-cider ()
     (interactive)
-    (paredit-mode 1)
+    (company-mode 1)
     (eldoc-mode 1)
-    (setq cider-history-file "~/.nrepl-history"
-          cider-hide-special-buffers t
-          cider-repl-display-help-banner nil
-          cider-repl-history-size 10000
-          cider-prefer-local-resources t
-          cider-popup-stacktraces-in-repl t
-          nrepl-log-messages nil
-          paredit-mode t
-          company-mode t
-          cider-repl-history-file "~/.cider-repl.log")
-
-    (setq cider-cljs-lein-repl
-          "(do (require 'figwheel-sidecar.repl-api)
-             (figwheel-sidecar.repl-api/start-figwheel!)
-             (figwheel-sidecar.repl-api/cljs-repl))"))
+    (paredit-mode 1))
 
   (use-package cider
     :init
     (add-hook #'cider-mode-hook #'smd/setup-cider)
     (add-hook #'cider-repl-mode-hook #'smd/setup-cider)
-    :bind (("C-c C-f" . smd/cider-figwheel-repl)
-           ("C-c C-s ." . smd/cider-send-to-repl)
-           ("M-TAB"   . company-complete)))
+    :bind (("C-c C-s ." . smd/cider-send-to-repl)
+           ("M-TAB"   . company-complete))
+    :config (setq
+             cider-clojure-cli-aliases "dev:test:debug"
+             cider-hide-special-buffers t
+             cider-history-file "~/.nrepl-history"
+             cider-popup-stacktraces-in-repl t
+             cider-prefer-local-resources t
+             cider-preferred-build-tool 'clojure-cli
+             cider-repl-display-help-banner nil
+             cider-repl-history-file "~/.cider-repl.log"
+             cider-repl-history-size 10000
+             cider-repl-pop-to-buffer-on-connect nil
+             cider-test-show-report-on-success nil
+             nrepl-log-messages nil))
 #+END_SRC
 
 =company= makes autocompletion sort of work.
