@@ -983,15 +983,6 @@ Here's a minimal configuration from the project's README. First, get the latest 
                 lsp-eldoc-render-all t
                 lsp-highlight-symbol-at-point t))
 
-  (use-package company-lsp
-    :after  company
-    :ensure t
-    :config
-    (add-hook 'java-mode-hook (lambda () (push 'company-lsp company-backends)))
-    (setq company-lsp-enable-snippet t
-          company-lsp-cache-candidates t)
-    (push 'java-mode company-global-modes))
-
   (use-package lsp-ui
     :ensure t
     :config
