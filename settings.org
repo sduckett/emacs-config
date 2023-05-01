@@ -20,7 +20,7 @@ feels; how does it affect my thinking of the system as a whole? There might be
 things that don't work, broken code, and descriptions that are hard to follow.
 This file was last exported: {{{time(%Y-%m-%d %H:%M)}}}
 
-* Getting Started
+* Installation
 Put the following in `~/.emacs.d/init.el`:
 
 #+BEGIN_SRC elisp :tangle no
@@ -46,9 +46,9 @@ To make a stylish and sharp Emacs config, write a literate org-mode file using
 #+end_src
 
 When you start emacs, =org-babel-load-file= compiles it to elisp by stripping the text
-away from the code blocks. Bam! It builds it's own configuration file.
+away from the code blocks. Bam! It builds its own configuration file.
 
-* Emacs Package Management
+* Package Management
 The first thing to do is setup package managment.
 
 #+BEGIN_SRC emacs-lisp
@@ -63,8 +63,8 @@ so it seems prudent to only use the versions hosted by the "stable"
 repositories.
 
 #+begin_src emacs-lisp :tangle yes
-  (add-to-list 'package-pinned-packages '(cider . "melpa") t)
-  (add-to-list 'package-pinned-packages '(clj-refactor . "melpa") t)
+  (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
+  (add-to-list 'package-pinned-packages '(clj-refactor . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(rainbow-delimiters . "melpa-stable") t)
   (add-to-list 'package-pinned-packages '(magit . "melpa") t)
   (add-to-list 'package-pinned-packages '(ob-http . "melpa-stable") t)
@@ -79,66 +79,66 @@ repositories.
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes
-    (defvar smd/packages-to-install
-      '(use-package
-         avy                            ; for jump-to-char tooling
-         popup                          ;
-         company                        ;
-         smex                           ;
-         ido-vertical-mode              ;
-         ido-completing-read+           ;
-         yasnippet                      ;
-         projectile                     ;
-         multiple-cursors               ;
-         idle-highlight-mode
-         highlight-symbol
-         highlight-numbers
-         highlight-quoted
-         org                            ; Life without org-mode is insane
-         htmlize
-         wc-mode
-         flycheck
-         flycheck-tip
-         flycheck-joker
-         flycheck-clj-kondo
-         clj-refactor
-         clojure-mode
-         clojure-mode-extra-font-locking
-         cider
-         origami
-         paredit
-         paren-face
-         rainbow-delimiters
-         ruby-mode
-         ruby-test-mode
-         inf-ruby
-         rbenv
-         elisp-slime-nav
-         markdown-mode
-         yaml-mode
-         magit
-         forge
-         git-gutter
-         git-timemachine
-         git-annex
-         helm
-         helm-descbinds
-         helm-ag
-         helm-projectile
-         helm-swoop
-         helm-gtags
-         helm-ls-git
-         helm-flycheck
-         helm-flyspell
-         helm-flx
-         ob-http
-         haskell-mode
-         typescript-mode
-         window-numbering))
+  (defvar smd/packages-to-install
+    '(use-package
+       avy                            ; for jump-to-char tooling
+       csv-mode                       ; what it says on the tin
+       popup                          ;
+       company                        ;
+       smex                           ;
+       ido-vertical-mode              ;
+       ido-completing-read+           ;
+       yasnippet                      ;
+       projectile                     ;
+       multiple-cursors               ;
+       idle-highlight-mode
+       highlight-symbol
+       highlight-numbers
+       highlight-quoted
+       org                            ; Life without org-mode is insane
+       htmlize
+       wc-mode
+       flycheck
+       flycheck-tip
+       flycheck-joker
+       flycheck-clj-kondo
+       clj-refactor
+       clojure-mode
+       clojure-mode-extra-font-locking
+       cider
+       origami
+       paredit
+       paren-face
+       rainbow-delimiters
+       ruby-mode
+       ruby-test-mode
+       inf-ruby
+       rbenv
+       elisp-slime-nav
+       markdown-mode
+       yaml-mode
+       magit
+       forge
+       git-gutter
+       git-timemachine
+       git-annex
+       helm
+       helm-descbinds
+       helm-ag
+       helm-projectile
+       helm-swoop
+       helm-gtags
+       helm-ls-git
+       helm-flycheck
+       helm-flyspell
+       helm-flx
+       ob-http
+       haskell-mode
+       window-numbering))
 
-    (dolist (package smd/packages-to-install)
-      (unless (package-installed-p package)
-        (package-install package)))
+  (dolist (package smd/packages-to-install)
+    (unless (package-installed-p package)
+      (package-install package)))
 #+end_src
 
 Load [[https://github.com/jwiegley/use-package][use-package]] for loading packages everywhere else. If you set
@@ -169,6 +169,9 @@ Once upon a time, I used [[https://github.com/winterTTr/ace-jump-mode][ace-jump-
 
 * Using org-mode to keep track of things
 ** Babel configuration
+I'm interested in using Babel for =emacs-lisp=, =clojure=, and =http=
+(i.e., cUrl from org-mode).
+
 #+begin_src emacs-lisp :tangle yes
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -178,7 +181,8 @@ Once upon a time, I used [[https://github.com/winterTTr/ace-jump-mode][ace-jump-
 
 (setq org-babel-clojure-backend 'cider)
 #+end_src
-** Basic configuration
+** Org configuration
+
 I like a `docs/` directory in $HOME, so this is where I keep my org files. I'm
 trying out keeping notes in a single file.
 
@@ -187,7 +191,7 @@ trying out keeping notes in a single file.
   (setq org-default-notes-file (concat org-directory "/notes.org"))
 #+END_SRC
 
-I would like to be able to keep an agenda and get to it quickly.
+I would like to be able to keep an agenda and get to it quickly with =C-c a=.
 
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-files '("~/docs/org/tasks.org"))
@@ -246,8 +250,8 @@ Keep timestamps in a drawer.
      ("t" "task" entry
       (file+headline "~/docs/org/tasks.org" "Tasks")
       "* TODO %?" :empty-lines-after 1)
-     ("d" "DW" entry
-      (file+datetree "~/docs/dw.org")
+     ("s" "Standups" entry
+      (file+datetree "~/docs/standups.org")
       "* %?" :empty-lines-after 1)
      ("j" "journal" entry
       (file+datetree "~/docs/org/personal/journal.org")
@@ -291,11 +295,6 @@ I would like to be able to insert code snippets, so let's try yasnippet
 
   (add-hook 'org-export-before-processing-hook 'smd/org-inline-css-hook)
 #+end_src
-* Basics and settings used everywhere
-Mostly settings that don't fit in elsewhere, so they end up here. However, this
-does include settings that aren't part of packages and need to configure Emacs'
-built-in packages.
-
 * General settings
 Turn on debugging (it will be turned off at the end). In case something happens
 during loading that breaks something, it's nice to have debug information.
@@ -499,6 +498,10 @@ I use rgrep enough that it needs a binding
        (compilation-start command #'grep-mode nil t)))))
 
 (global-set-key "\C-cG" 'rg)
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+  (global-set-key "\C-ci" 'imenu)
 #+end_src
 * Managing Credentials
 
@@ -732,6 +735,30 @@ touched.
 This is useful to create a feature branch after work has already began on the
 old branch (likely but not necessarily "master")."
 
+* Fun with Timestamps
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package ts)
+
+  (defun smd/ts-at-point ()
+    (unless (looking-at "[0-9.]")
+      nil)
+    (let ((origin (point))
+          beg end)
+      (save-excursion
+        (setq beg (+ origin (skip-chars-backward "0123456789."))))
+      (save-excursion
+        (setq end (+ origin (skip-chars-forward "0123456789."))))
+      (list beg end)))
+
+  (defun smd/show-date-at-point ()
+    (interactive)
+    (let* ((r (smd/ts-at-point))
+           (beg (nth 0 r))
+           (end (nth 1 r))
+           (unix_ts (buffer-substring beg end)))
+      (message (ts-format (make-ts :unix (float (read unix_ts)))))))
+
+#+END_SRC
 * Programming Modes
 (In Emacs, most programming language modes derive from prog-mode; any hooks
 created for prog-mode should apply to all language modes.) Subword mode lets me
@@ -775,29 +802,61 @@ Display parentheses nicely
 * Paredit
 Paredit for all the lisps
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle yes
   (use-package paredit
+    :ensure t
     :diminish "()"
+    :hook ((emacs-lisp-mode clojure-mode) . paredit-mode)
+    :bind (:map paredit-mode-map
+                ("M-(" . paredit-forward-barf-sexp)
+                ("M-)" . paredit-forward-slurp-sexp)
+                (")" . paredit-close-parenthesis)
+                ("C-c w" . paredit-copy-as-kill)
+                ("RET" . nil)))
+#+END_SRC
+
+* LSP
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package lsp-mode
+    :ensure t
+    :init (setq lsp-inhibit-message t
+                lsp-eldoc-render-all t
+                lsp-highlight-symbol-at-point t))
+
+  (use-package lsp-ui
+    :ensure t
     :config
-    (progn
-      (define-key paredit-mode-map (kbd "M-)") 'paredit-forward-slurp-sexp)
-      (define-key paredit-mode-map (kbd "M-(") 'paredit-forward-barf-sexp)
-      (define-key paredit-mode-map (kbd ")")   'paredit-close-parenthesis)))
+    (setq lsp-ui-doc-enable t
+          lsp-ui-doc-position 'top
+          lsp-ui-doc-use-childframe t
+          lsp-ui-flycheck-list-position 'bottom
+          lsp-ui-flycheck-live-reporting t
+          lsp-ui-imenu-enable nil
+          lsp-ui-peek-enable t
+          lsp-ui-peek-always-show t
+          lsp-ui-sideline-enable t
+          lsp-ui-sideline-show-symbol nil
+          lsp-ui-sideline-show-hover nil
+          lsp-ui-sideline-show-code-actions nil
+          lsp-ui-sideline-show-flycheck t
+          lsp-ui-sideline-ignore-duplicate t
+          lsp-ui-sideline-update-mode 'line))
 
 #+END_SRC
 
 * Clojure
 
-Running =(cider-jack-in)= is sometimes enough, but when you need to jack-in with
-a specific profile, it should be easy.
+Running =(cider-jack-in)= is sometimes enough, but when you need to
+jack-in with a specific profile, it should be easy.
 
-#+BEGIN_SRC emacs-lisp
-  (defun smd/cider-jack-in-test-profile ()
-    (interactive)
-    (let ((cider-lein-parameters (concat "with-profile +test "
-                                        cider-lein-parameters)))
-      (set-variable 'cider-lein-parameters cider-lein-parameters)
-      (cider-jack-in '())))
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (defun smd/cider-jack-in-test-profile ()
+      (interactive)
+      (let ((cider-lein-parameters (concat "with-profile +test "
+                                          cider-lein-parameters)))
+        (set-variable 'cider-lein-parameters cider-lein-parameters)
+        (cider-jack-in '())))
 #+END_SRC
 
 Sometimes it is nice to send a form to the repl and evaluate it.
@@ -816,31 +875,33 @@ Sometimes it is nice to send a form to the repl and evaluate it.
 CIDER is pretty easy to setup. Cider is also pretty easy to homebrew.
 
 #+BEGIN_SRC emacs-lisp
-  (defun smd/setup-cider ()
-    (interactive)
-    (company-mode 1)
-    (eldoc-mode 1)
-    (paredit-mode 1))
+    (defun smd/setup-cider ()
+      (interactive)
+      (company-mode 1)
+      (eldoc-mode 1)
+      (paredit-mode 1))
 
-  (use-package cider
-    :init
-    (add-hook #'cider-mode-hook #'smd/setup-cider)
-    (add-hook #'cider-repl-mode-hook #'smd/setup-cider)
-    :bind (("C-c C-s ." . smd/cider-send-to-repl)
-           ("M-TAB"   . company-complete))
-    :config (setq
-             cider-clojure-cli-aliases "dev:test:debug"
-             cider-hide-special-buffers t
-             cider-history-file "~/.nrepl-history"
-             cider-popup-stacktraces-in-repl t
-             cider-prefer-local-resources t
-             cider-preferred-build-tool 'clojure-cli
-             cider-repl-display-help-banner nil
-             cider-repl-history-file "~/.cider-repl.log"
-             cider-repl-history-size 10000
-             cider-repl-pop-to-buffer-on-connect nil
-             cider-test-show-report-on-success nil
-             nrepl-log-messages nil))
+    (use-package cider
+      :init
+      (add-hook #'cider-mode-hook #'smd/setup-cider)
+      (add-hook #'cider-repl-mode-hook #'smd/setup-cider)
+      :bind (("C-c C-s ." . smd/cider-send-to-repl)
+             ("M-TAB"   . company-complete))
+      :config (setq
+               cider-clojure-cli-aliases "dev:test:debug"
+               cider-hide-special-buffers t
+               cider-history-file "~/.nrepl-history"
+               cider-jump-to-pop-to-buffer-actions '((display-buffer-same-window))
+               cider-popup-stacktraces-in-repl t
+               cider-prefer-local-resources t
+               cider-preferred-build-tool 'clojure-cli
+               cider-repl-display-help-banner nil
+               cider-repl-history-file "~/.cider-repl.log"
+               cider-repl-history-size 10000
+               cider-repl-pop-to-buffer-on-connect nil
+               cider-repl-prompt-function 'cider-repl-prompt-abbreviated
+               cider-test-show-report-on-success nil
+               nrepl-log-messages nil))
 #+END_SRC
 
 =company= makes autocompletion sort of work.
@@ -851,35 +912,23 @@ Korma functions are going to get pretty nested, so
 let's not indent them too much.
 
 #+BEGIN_SRC emacs-lisp
-  (defun smd/korma-indentation ()
-    (define-clojure-indent
-      (korma/select 1)
-      (korma/where 1)
-      (korma/insert 1)
-      (korma/delete 1)
-      (korma/join 1)
-      (korma/update 1)))
-
   (defun smd/clojure-mode-hook ()
     (cljr-add-keybindings-with-prefix "C-c C-m")
     (rainbow-delimiters-mode t)
     (projectile-mode 1)
     (linum-mode 1)
-    (paredit-mode 1)
-    (company-mode 1)
-    (smd/korma-indentation))
+    (company-mode 1))
 
   (use-package clojure-mode
+    :ensure t
     :config (progn
              (use-package cider)
              (use-package clj-refactor)
              (use-package eldoc)
              (use-package company)
-             (use-package paredit)
              (use-package projectile)
              (add-hook 'clojure-mode-hook 'smd/clojure-mode-hook))
-    :bind (("C-c w" . paredit-copy-as-kill)
-           ("C-c j" . smd/cider-jack-in-test-profile)
+    :bind (("C-c j" . smd/cider-jack-in-test-profile)
            ("C-c i" . imenu)
            ("C-c C-l" . cider-repl-clear-buffer)))
 #+END_SRC
@@ -907,13 +956,113 @@ the prompt globally, which is fine by me since I only ever use Postgres."
               (setq sql-prompt-regexp "^[_[:alpha:]]*[=][#>] ")
               (setq sql-prompt-cont-regexp "^[_[:alpha:]]*[-][#>] ")))
 #+end_src
+* Treemacs
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package treemacs
+    :ensure t
+    :defer t
+    :config
+    (progn
+      (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
+            treemacs-deferred-git-apply-delay        0.5
+            treemacs-directory-name-transformer      #'identity
+            treemacs-display-in-side-window          t
+            treemacs-eldoc-display                   'simple
+            treemacs-file-event-delay                2000
+            treemacs-file-extension-regex            treemacs-last-period-regex-value
+            treemacs-file-follow-delay               0.2
+            treemacs-file-name-transformer           #'identity
+            treemacs-follow-after-init               t
+            treemacs-expand-after-init               t
+            treemacs-find-workspace-method           'find-for-file-or-pick-first
+            treemacs-git-command-pipe                ""
+            treemacs-goto-tag-strategy               'refetch-index
+            treemacs-header-scroll-indicators        '(nil . "^^^^^^")
+            treemacs-hide-dot-git-directory          t
+            treemacs-indentation                     2
+            treemacs-indentation-string              " "
+            treemacs-is-never-other-window           nil
+            treemacs-max-git-entries                 5000
+            treemacs-missing-project-action          'ask
+            treemacs-move-forward-on-expand          nil
+            treemacs-no-png-images                   nil
+            treemacs-no-delete-other-windows         t
+            treemacs-project-follow-cleanup          nil
+            treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+            treemacs-position                        'left
+            treemacs-read-string-input               'from-child-frame
+            treemacs-recenter-distance               0.1
+            treemacs-recenter-after-file-follow      nil
+            treemacs-recenter-after-tag-follow       nil
+            treemacs-recenter-after-project-jump     'always
+            treemacs-recenter-after-project-expand   'on-distance
+            treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
+            treemacs-project-follow-into-home        nil
+            treemacs-show-cursor                     nil
+            treemacs-show-hidden-files               t
+            treemacs-silent-filewatch                nil
+            treemacs-silent-refresh                  nil
+            treemacs-sorting                         'alphabetic-asc
+            treemacs-select-when-already-in-treemacs 'move-back
+            treemacs-space-between-root-nodes        t
+            treemacs-tag-follow-cleanup              t
+            treemacs-tag-follow-delay                1.5
+            treemacs-text-scale                      nil
+            treemacs-user-mode-line-format           nil
+            treemacs-user-header-line-format         nil
+            treemacs-wide-toggle-width               70
+            treemacs-width                           35
+            treemacs-width-increment                 1
+            treemacs-width-is-initially-locked       t
+            treemacs-workspace-switch-cleanup        nil)
+
+      ;; The default width and height of the icons is 22 pixels. If you are
+      ;; using a Hi-DPI display, uncomment this to double the icon size.
+      ;;(treemacs-resize-icons 44)
+
+      (treemacs-follow-mode t)
+      (treemacs-filewatch-mode t)
+      (treemacs-fringe-indicator-mode 'always)
+      (when treemacs-python-executable
+        (treemacs-git-commit-diff-mode t))
+
+      (pcase (cons (not (null (executable-find "git")))
+                   (not (null treemacs-python-executable)))
+        (`(t . t)
+         (treemacs-git-mode 'deferred))
+        (`(t . _)
+         (treemacs-git-mode 'simple)))
+
+      (treemacs-hide-gitignored-files-mode nil))
+    :bind
+    (:map global-map
+          ("M-0"       . treemacs-select-window)
+          ("C-x t 1"   . treemacs-delete-other-windows)
+          ("C-x t t"   . treemacs)
+          ("C-x t d"   . treemacs-select-directory)
+          ("C-x t B"   . treemacs-bookmark)
+          ("C-x t C-t" . treemacs-find-file)
+          ("C-x t M-t" . treemacs-find-tag)))
+
+  (use-package treemacs-projectile
+    :after (treemacs projectile)
+    :ensure t)
+
+  (use-package treemacs-icons-dired
+    :hook (dired-mode . treemacs-icons-dired-enable-once)
+    :ensure t)
+
+  (use-package treemacs-magit
+    :after (treemacs magit)
+    :ensure t)
+#+END_SRC
 * Projectile
 Always use Projectile because turning it on for specific things is annoying.
 
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
     :diminish projectile-mode
-    :init (setq projectile-keymap-prefix (kbd "C-c C-p"))
+    :init (setq projectile-keymap-prefix (kbd "C-c M-p"))
     :config (projectile-global-mode))
 #+END_SRC
 
@@ -974,35 +1123,7 @@ Here's a minimal configuration from the project's README. First, get the latest 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'cc-mode)
 
-  ;; (use-package treemacs
-  ;;   :ensure t)
-
-  (use-package lsp-mode
-    :ensure t
-    :init (setq lsp-inhibit-message t
-                lsp-eldoc-render-all t
-                lsp-highlight-symbol-at-point t))
-
-  (use-package lsp-ui
-    :ensure t
-    :config
-    (setq lsp-ui-doc-enable t
-          lsp-ui-doc-position 'top
-          lsp-ui-doc-use-childframe t
-          lsp-ui-flycheck-list-position 'bottom
-          lsp-ui-flycheck-live-reporting t
-          lsp-ui-imenu-enable nil
-          lsp-ui-peek-enable t
-          lsp-ui-peek-always-show t
-          lsp-ui-sideline-enable t
-          lsp-ui-sideline-show-symbol nil
-          lsp-ui-sideline-show-hover nil
-          lsp-ui-sideline-show-code-actions nil
-          lsp-ui-sideline-show-flycheck t
-          lsp-ui-sideline-ignore-duplicate t
-          lsp-ui-sideline-update-mode 'line))
-
-  (use-package lsp-java
+    (use-package lsp-java
     :ensure t
     :requires (lsp-ui-flycheck lsp-ui-sideline)
     :init (setq
@@ -1027,21 +1148,6 @@ Here's a minimal configuration from the project's README. First, get the latest 
 
   (use-package dap-java
     :after (lsp-java))
-
-  ;; (use-package lsp-java-treemacs
-  ;;   :after (treemacs))
-#+end_src
-
-* Typescript
-
-First, we should enable Typescript mode for the right  things
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package typescript-mode
-    :ensure t
-    :init (setq lsp-inhibit-message nil
-                lsp-eldoc-render-all t
-                lsp-highlight-symbol-at-point t))
 #+end_src
 
 * Finally
