@@ -822,12 +822,18 @@ Paredit for all the lisps
     :ensure t
     :init (setq lsp-inhibit-message t
                 lsp-eldoc-render-all t
-                lsp-highlight-symbol-at-point t))
+                lsp-highlight-symbol-at-point t
+                lsp-enable-indentation nil
+                lsp-enable-completion-at-point nil
+                gc-cons-threshold (* 100 1024 1024)
+                read-process-output-max (* 1024 1024)
+                treemacs-space-between-root-nodes nil
+                company-minimum-prefix-length 1))
 
   (use-package lsp-ui
     :ensure t
     :config
-    (setq lsp-ui-doc-enable t
+    (setq lsp-ui-doc-enable nil           ;I think this is the one I don't want enabled?
           lsp-ui-doc-position 'top
           lsp-ui-doc-use-childframe t
           lsp-ui-flycheck-list-position 'bottom
@@ -927,6 +933,7 @@ let's not indent them too much.
              (use-package eldoc)
              (use-package company)
              (use-package projectile)
+             (use-package lsp-mode)
              (add-hook 'clojure-mode-hook 'smd/clojure-mode-hook))
     :bind (("C-c j" . smd/cider-jack-in-test-profile)
            ("C-c i" . imenu)
