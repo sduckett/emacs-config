@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: org-javascript
+# key: org
+# --
+
+#+BEGIN_SRC javascript
+
+#+END_SRC

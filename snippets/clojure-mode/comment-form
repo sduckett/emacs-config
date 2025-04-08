@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: comment-form
+# key: comment
+# --
+(comment
+  "We're doing science! 🥼 🥽 🧪 ⚗"
+
+  (reduce + (range 1 101))
+
+  "👋")
