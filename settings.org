@@ -1,4 +1,4 @@
-#+TITLE:   Sean's Emacs Configuration
+#+TITLE:   The Ever Growing Emacs Configuration
 #+AUTHOR:  Sean Duckett
 #+EMAIL:   sean@hungryllama.net
 #+LANGUAGE: en
@@ -15,13 +15,17 @@
 
 * Introduction
 
-This is an experiment to see how keeping a literate configuration for Emacs
-feels; how does it affect my thinking of the system as a whole? There might be
-things that don't work, broken code, and descriptions that are hard to follow.
-This file was last exported: {{{time(%Y-%m-%d %H:%M)}}}
+This is the emacs config that I use. It isn't doom emacs or spacemacs or
+trying to be either. But it is pretty fun to hack on elisp! It was based
+on Dakrone's emacs config, influenced by cms's emacs config, and ever
+adjusted. Even still, there are spots where I've forgotten if I still
+use that mode a lot. This file was last exported: {{{time(%Y-%m-%d
+%H:%M)}}}
 
 * Installation
-Put the following in `~/.emacs.d/init.el`:
+
+Put the following in `$HOME/.emacs.d/init.el`. Notice that we're not
+tangling it, so it won't appear in the output.
 
 #+BEGIN_SRC elisp :tangle no
   ;; keep customized settings in their own file
@@ -108,7 +112,7 @@ repositories.
        cider
        origami
        paredit
-       paren-face
+       ;;paren-face
        rainbow-delimiters
        ruby-mode
        ruby-test-mode
@@ -118,7 +122,6 @@ repositories.
        markdown-mode
        yaml-mode
        magit
-       forge
        git-gutter
        git-timemachine
        git-annex
@@ -154,7 +157,7 @@ of this? Does it make things simpler?
 Once upon a time, I used [[https://github.com/winterTTr/ace-jump-mode][ace-jump-mode]], but it looks to be unmaintained
 (or perfect?). Nowadays, there's also [[https://github.com/abo-abo/avy][avy-mode]].
 
-#+begin_src emacs-lisp :tange yes
+#+begin_src emacs-lisp :tangle yes
   (use-package avy
     :ensure t
     :bind (("C-c '" . avy-goto-char)
@@ -181,6 +184,7 @@ I'm interested in using Babel for =emacs-lisp=, =clojure=, and =http=
 
 (setq org-babel-clojure-backend 'cider)
 #+end_src
+
 ** Org configuration
 
 I like a `docs/` directory in $HOME, so this is where I keep my org files. I'm
@@ -795,8 +799,27 @@ Display parentheses nicely
 
 #+BEGIN_SRC emacs-lisp
   (require 'paren)
-  (set-face-background 'show-paren-match "red")
+  ;;(set-face-background 'show-paren-match "red")
   (add-hook 'prog-mode-hook 'show-paren-mode)
+#+END_SRC
+
+* XML Management
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package xml-format
+    :demand t
+    :after nxml-mode)
+#+END_SRC
+* Programming Without Typing
+
+Talonvoice is pretty neat software and there are many good tools for
+driving editors. One such example is Cursorless, but that is designed to
+work with VSCode. To get something similar in Emacs, we have some other
+options (which are largely in development).
+
+#+BEGIN_SRC emacs-lisp
+  ;; (add-to-list 'load-path "/Users/sean/repos/github.com/sduckett/hatty.el")
+  ;; (require 'hatty)
+  ;; (global-hatty-mode 1)
 #+END_SRC
 
 * Paredit
@@ -818,36 +841,37 @@ Paredit for all the lisps
 * LSP
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package lsp-mode
-    :ensure t
-    :init (setq lsp-inhibit-message t
-                lsp-eldoc-render-all t
-                lsp-highlight-symbol-at-point t
-                lsp-enable-indentation nil
-                lsp-enable-completion-at-point nil
-                gc-cons-threshold (* 100 1024 1024)
-                read-process-output-max (* 1024 1024)
-                treemacs-space-between-root-nodes nil
-                company-minimum-prefix-length 1))
+    (use-package lsp-mode
+      :ensure t
+      :init (setq lsp-inhibit-message t
+                  lsp-eldoc-render-all t
+                  lsp-highlight-symbol-at-point t
+                  lsp-enable-indentation nil
+                  lsp-enable-completion-at-point nil
+                  gc-cons-threshold (* 100 1024 1024)
+                  read-process-output-max (* 1024 1024)
+                  treemacs-space-between-root-nodes nil
+                  company-minimum-prefix-length 1))
 
-  (use-package lsp-ui
-    :ensure t
-    :config
-    (setq lsp-ui-doc-enable nil           ;I think this is the one I don't want enabled?
-          lsp-ui-doc-position 'top
-          lsp-ui-doc-use-childframe t
-          lsp-ui-flycheck-list-position 'bottom
-          lsp-ui-flycheck-live-reporting t
-          lsp-ui-imenu-enable nil
-          lsp-ui-peek-enable t
-          lsp-ui-peek-always-show t
-          lsp-ui-sideline-enable t
-          lsp-ui-sideline-show-symbol nil
-          lsp-ui-sideline-show-hover nil
-          lsp-ui-sideline-show-code-actions nil
-          lsp-ui-sideline-show-flycheck t
-          lsp-ui-sideline-ignore-duplicate t
-          lsp-ui-sideline-update-mode 'line))
+    (use-package lsp-ui
+      :ensure t
+      :config
+      (setq lsp-lens-enable nil
+            lsp-ui-doc-enable nil
+            lsp-ui-doc-position 'top
+            lsp-ui-doc-use-childframe t
+            lsp-ui-flycheck-list-position 'bottom
+            lsp-ui-flycheck-live-reporting t
+            lsp-ui-imenu-enable nil
+            lsp-ui-peek-enable t
+            lsp-ui-peek-always-show nil
+            lsp-ui-sideline-enable t
+            lsp-ui-sideline-show-symbol nil
+            lsp-ui-sideline-show-hover nil
+            lsp-ui-sideline-show-code-actions nil
+            lsp-ui-sideline-show-flycheck t
+            lsp-ui-sideline-ignore-duplicate t
+            lsp-ui-sideline-update-mode 'line))
 
 #+END_SRC
 
@@ -922,7 +946,7 @@ let's not indent them too much.
     (cljr-add-keybindings-with-prefix "C-c C-m")
     (rainbow-delimiters-mode t)
     (projectile-mode 1)
-    (linum-mode 1)
+    (display-line-numbers-mode 1)
     (company-mode 1))
 
   (use-package clojure-mode
@@ -932,12 +956,32 @@ let's not indent them too much.
              (use-package clj-refactor)
              (use-package eldoc)
              (use-package company)
+             (use-package yafolding)
              (use-package projectile)
              (use-package lsp-mode)
              (add-hook 'clojure-mode-hook 'smd/clojure-mode-hook))
     :bind (("C-c j" . smd/cider-jack-in-test-profile)
            ("C-c i" . imenu)
            ("C-c C-l" . cider-repl-clear-buffer)))
+#+END_SRC
+
+* Code Folding Tools
+
+I've got files that are 15k lines long and get lost easily when faced
+with a wall of text. Code folding helps by narrowing the focus in a
+different way than the =narrow-to-{defun,region}= way of doing things.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package yafolding
+    :ensure t
+    :defer t
+    :config
+    :bind
+    (:map global-map
+          ("C-x t e" . yafolding-toggle-element)
+          ("C-x t a" . yafolding-toggle-all)
+          ("C-x t s" . yafolding-show-element)
+          ("C-x t h" . yafolding-hide-element)))
 #+END_SRC
 
 * SQL things
@@ -1142,7 +1186,7 @@ Here's a minimal configuration from the project's README. First, get the latest 
     (add-hook 'java-mode-hook  'flycheck-mode)
     (add-hook 'java-mode-hook  'company-mode)
     (add-hook 'java-mode-hook  'rainbow-delimiters-mode)
-    (add-hook 'java-mode-hook  'linum-mode)
+    (add-hook 'java-mode-hook  'display-line-numbers-mode)
     (setq lsp-java--workspace-folders
           (list "/Users/smd/src/democracyworks/colorado-rla/server/eclipse-project/")))
 
