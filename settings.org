@@ -83,14 +83,14 @@ repositories.
     '(use-package
        avy                            ; for jump-to-char tooling
        csv-mode                       ; what it says on the tin
-       popup                          ;
-       company                        ;
-       smex                           ;
-       ido-vertical-mode              ;
-       ido-completing-read+           ;
-       yasnippet                      ;
-       projectile                     ;
-       multiple-cursors               ;
+       popup
+       company
+       smex
+       ido-vertical-mode
+       ido-completing-read+
+       yasnippet
+       projectile
+       multiple-cursors
        idle-highlight-mode
        highlight-symbol
        highlight-numbers
@@ -105,6 +105,8 @@ repositories.
        clj-refactor
        clojure-mode
        clojure-mode-extra-font-locking
+       clojure-ts-mode                    ;emacs-30+ (treesit-available-p)
+       ts
        cider
        origami
        paredit
@@ -113,7 +115,6 @@ repositories.
        ruby-mode
        ruby-test-mode
        inf-ruby
-       rbenv
        elisp-slime-nav
        markdown-mode
        yaml-mode
@@ -485,7 +486,7 @@ I use rgrep enough that it needs a binding
 (global-set-key "\C-cg" 'rgrep)
 #+end_src
 
-[[http://blog.burntsushi.net/ripgrep/][rigrep]] seems like a neat addition to the search tool arms race
+[[http://blog.burntsushi.net/ripgrep/][ripgrep]] seems like a neat addition to the search tool arms race
 
 #+begin_src emacs-lisp :tangle yes
 (defun rg ()
@@ -821,7 +822,7 @@ Paredit for all the lisps
   (use-package lsp-mode
     :ensure t
     :init (setq lsp-inhibit-message t
-                lsp-eldoc-render-all t
+                lsp-eldoc-render-all nil
                 lsp-highlight-symbol-at-point t
                 lsp-enable-indentation nil
                 lsp-enable-completion-at-point nil
@@ -849,6 +850,13 @@ Paredit for all the lisps
           lsp-ui-sideline-ignore-duplicate t
           lsp-ui-sideline-update-mode 'line))
 
+#+END_SRC
+
+* Code Folding
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package treesit-fold
+    :load-path "~/repos/github.com/emacs-tree-sitter/treesit-fold")
 #+END_SRC
 
 * Clojure
@@ -881,38 +889,39 @@ Sometimes it is nice to send a form to the repl and evaluate it.
 CIDER is pretty easy to setup. Cider is also pretty easy to homebrew.
 
 #+BEGIN_SRC emacs-lisp
-    (defun smd/setup-cider ()
-      (interactive)
-      (company-mode 1)
-      (eldoc-mode 1)
-      (paredit-mode 1))
+  (defun smd/setup-cider ()
+    (interactive)
+    (company-mode 1)
+  ;;  (eldoc-mode 1)
+    (paredit-mode 1))
 
-    (use-package cider
-      :init
-      (add-hook #'cider-mode-hook #'smd/setup-cider)
-      (add-hook #'cider-repl-mode-hook #'smd/setup-cider)
-      :bind (("C-c C-s ." . smd/cider-send-to-repl)
-             ("M-TAB"   . company-complete))
-      :config (setq
-               cider-clojure-cli-aliases "dev:test:debug"
-               cider-hide-special-buffers t
-               cider-history-file "~/.nrepl-history"
-               cider-jump-to-pop-to-buffer-actions '((display-buffer-same-window))
-               cider-popup-stacktraces-in-repl t
-               cider-prefer-local-resources t
-               cider-preferred-build-tool 'clojure-cli
-               cider-repl-display-help-banner nil
-               cider-repl-history-file "~/.cider-repl.log"
-               cider-repl-history-size 10000
-               cider-repl-pop-to-buffer-on-connect nil
-               cider-repl-prompt-function 'cider-repl-prompt-abbreviated
-               cider-test-show-report-on-success nil
-               nrepl-log-messages nil))
+  (use-package cider
+    :init
+    (add-hook #'cider-mode-hook #'smd/setup-cider)
+    (add-hook #'cider-repl-mode-hook #'smd/setup-cider)
+    :bind (("C-c C-s ." . smd/cider-send-to-repl)
+           ("M-TAB"   . company-complete))
+    :config (setq
+             cider-clojure-cli-aliases "dev:test:debug"
+             cider-hide-special-buffers t
+             cider-history-file "~/.nrepl-history"
+             cider-jump-to-pop-to-buffer-actions '((display-buffer-same-window))
+             cider-popup-stacktraces-in-repl t
+             cider-prefer-local-resources t
+             cider-preferred-build-tool 'clojure-cli
+             cider-repl-display-help-banner nil
+             cider-repl-history-file "~/.cider-repl.log"
+             cider-repl-history-size 10000
+             cider-repl-pop-to-buffer-on-connect nil
+             cider-repl-prompt-function 'cider-repl-prompt-abbreviated
+             cider-test-show-report-on-success nil
+             nrepl-log-messages nil))
 #+END_SRC
 
-=company= makes autocompletion sort of work.
-=paredit= and =rainbow-delimiters= make the parentheses pretty nice.
-=eldoc= shows you the docstring of a function in the echo area.
+=company= makes autocompletion sort of work. =paredit= and
+=rainbow-delimiters= make the parentheses pretty nice. =eldoc= shows you
+the docstring of a function in the echo area (but with LSP, it gets
+annoying sometimes)
 
 Korma functions are going to get pretty nested, so
 let's not indent them too much.
@@ -922,7 +931,8 @@ let's not indent them too much.
     (cljr-add-keybindings-with-prefix "C-c C-m")
     (rainbow-delimiters-mode t)
     (projectile-mode 1)
-    (linum-mode 1)
+    (treesit-fold-mode 1)
+    (display-line-numbers-mode 1)
     (company-mode 1))
 
   (use-package clojure-mode
@@ -930,7 +940,7 @@ let's not indent them too much.
     :config (progn
              (use-package cider)
              (use-package clj-refactor)
-             (use-package eldoc)
+             ;;(use-package eldoc)
              (use-package company)
              (use-package projectile)
              (use-package lsp-mode)
@@ -938,6 +948,24 @@ let's not indent them too much.
     :bind (("C-c j" . smd/cider-jack-in-test-profile)
            ("C-c i" . imenu)
            ("C-c C-l" . cider-repl-clear-buffer)))
+
+  ;;; We should consider Bozhidar's
+  ;;; https://batsov.com/articles/2025/04/17/using-use-package-the-right-way/
+
+  (use-package clojure-ts-mode
+    :ensure t
+    :init (progn
+            (add-hook 'clojure-ts-mode-hook #'cider-mode)
+            (add-hook 'clojure-ts-mode-hook #'lsp-mode)
+            (add-hook 'clojure-ts-mode-hook #'projectile-mode)
+            (add-hook 'clojure-ts-mode-hook #'display-line-numbers-mode)
+            (add-hook 'clojure-ts-mode-hook #'enable-paredit-mode)
+            (add-hook 'clojure-ts-mode-hook #'rainbow-delimiters-mode)
+            (add-hook 'clojure-ts-mode-hook #'clj-refactor-mode))
+    :config (setq
+             clojure-ts-comment-macro-font-lock-body nil
+             ;;t would make the comment body not-syntax-highlighted, which I dislike
+             clojure-ts-toplevel-inside-comment-form t))
 #+END_SRC
 
 * SQL things
@@ -1156,6 +1184,26 @@ Here's a minimal configuration from the project's README. First, get the latest 
   (use-package dap-java
     :after (lsp-java))
 #+end_src
+* Try AI?
+OK, this tech might be great, it might be mediocre, and it might be a
+vast container of highly potent fertilizer. How can we tell the
+difference? Probably by trying it out.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package ellama
+    :ensure t
+    :init
+    (setopt ellama-language "English")
+    (setopt ellama-auto-scroll t)
+    (ellama-context-header-line-global-mode +1)
+    (ellama-session-header-line-global-mode +1)
+    (require 'llm-ollama)
+    (setopt ellama-provider
+  	  (make-llm-ollama
+  	   :chat-model "codellama" :embedding-model "codellama"))
+    :hook (org-ctrl-c-ctrl-c-final . ellama-chat-send-last-message))
+
+#+END_SRC
 
 * Finally
 Turn off debugging now that initialization is done.
